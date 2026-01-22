@@ -1,0 +1,243 @@
+<div style="background:#f4f6fa;min-height:100vh;padding:0 0 32px 0;">
+    <div style="display:flex;justify-content:flex-end;align-items:center;padding:24px 36px 0 0;max-width:98vw;">
+        <a href="<?php echo e(route('dashboard')); ?>" class="btn btn-primary" style="background:#1877F2;border:none;font-weight:600;font-size:1.08rem;border-radius:8px;padding:8px 22px;box-shadow:0 1px 6px rgba(24,119,242,0.10);">
+            <i class="bi bi-arrow-left" style="margin-right:6px;"></i> Voltar ao Dashboard
+        </a>
+    </div>
+    <div style="background:#1877F2;color:#fff;font-size:2rem;font-weight:700;padding:28px 36px 18px 36px;border-radius:22px 22px 24px 24px;box-shadow:0 2px 12px rgba(24,119,242,0.10);margin:32px 0 32px 0;max-width:98vw;">
+        Plano de caixa
+    </div>
+    <div class="row mb-4" style="gap:18px;justify-content:center;">
+        <div class="col-md-3" style="min-width:260px;">
+            <div style="background:#f4faff;border-radius:18px;padding:28px 24px;box-shadow:0 2px 12px rgba(24,119,242,0.08);display:flex;flex-direction:column;align-items:flex-start;">
+                <span style="color:#1ca65c;font-weight:600;font-size:1.1rem;">Entradas</span>
+                <span style="color:#1877F2;font-size:2rem;font-weight:700;">Kz <?php echo e(number_format($total_entradas, 2, ',', '.')); ?></span>
+            </div>
+        </div>
+        <div class="col-md-3" style="min-width:260px;">
+            <div style="background:#f4faff;border-radius:18px;padding:28px 24px;box-shadow:0 2px 12px rgba(24,119,242,0.08);display:flex;flex-direction:column;align-items:flex-start;">
+                <span style="color:#e74c3c;font-weight:600;font-size:1.1rem;">Saídas</span>
+                <span style="color:#1877F2;font-size:2rem;font-weight:700;">Kz <?php echo e(number_format($total_saidas, 2, ',', '.')); ?></span>
+            </div>
+        </div>
+        <div class="col-md-3" style="min-width:260px;">
+            <div style="background:#f4faff;border-radius:18px;padding:28px 24px;box-shadow:0 2px 12px rgba(24,119,242,0.08);display:flex;flex-direction:column;align-items:flex-start;">
+                <span style="color:#1ca65c;font-weight:600;font-size:1.1rem;">Saldo</span>
+                <span style="color:#1877F2;font-size:2rem;font-weight:700;">Kz <?php echo e(number_format($saldo, 2, ',', '.')); ?></span>
+            </div>
+        </div>
+    </div>
+
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($mensagem): ?>
+        <div class="alert alert-success"><?php echo e($mensagem); ?></div>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+    
+    <form wire:submit.prevent="salvarMovimento" class="row g-3 mb-4">
+        <div class="col-md-2">
+            <input type="text" class="form-control" placeholder="Empresa" wire:model.defer="empresa">
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['empresa'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <span class="text-danger"><?php echo e($message); ?></span> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        </div>
+        <div class="col-md-2">
+            <input type="text" class="form-control" placeholder="Descrição da Despesa" wire:model.defer="descricao">
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['descricao'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <span class="text-danger"><?php echo e($message); ?></span> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        </div>
+        <div class="col-md-2">
+            <select class="form-select" wire:model.defer="natureza_pagamento">
+                <option value="">Selecione</option>
+                <option value="Abono De Família Subsídios Do Pessoal Civil">Abono De Família Subsídios Do Pessoal Civil</option>
+                <option value="Aquisição De Mobiliário">Aquisição De Mobiliário</option>
+                <option value="Bilhetes De Passagem">Bilhetes De Passagem</option>
+                <option value="Combustíveis E Lubrificantes">Combustíveis E Lubrificantes</option>
+                <option value="Contribuições Do Empregador Para A Segurança Social">Contribuições Do Empregador Para A Segurança Social</option>
+                <option value="Décimo Terceiro Mês Do Pessoal Civil">Décimo Terceiro Mês Do Pessoal Civil</option>
+                <option value="Encargos Aduaneiros E Portuários">Encargos Aduaneiros E Portuários</option>
+                <option value="Material De Consumo Corrente Especializado">Material De Consumo Corrente Especializado</option>
+                <option value="Materiais E Utensílios Duradouros De Especialidade">Materiais E Utensílios Duradouros De Especialidade</option>
+                <option value="Outros Materiais De Consumo Corrente">Outros Materiais De Consumo Corrente</option>
+                <option value="Outros Materiais E Utensilios Duradouros">Outros Materiais E Utensilios Duradouros</option>
+                <option value="Outros Serviços">Outros Serviços</option>
+                <option value="Rendas De Imoveis">Rendas De Imoveis</option>
+                <option value="Seguros">Seguros</option>
+                <option value="Serviço De Protecção E Vigilância">Serviço De Protecção E Vigilância</option>
+                <option value="Serviços De Água E Electricidade">Serviços De Água E Electricidade</option>
+                <option value="Serviços De Ensino E Formação">Serviços De Ensino E Formação</option>
+                <option value="Serviços De Hospedagem E Alimentação">Serviços De Hospedagem E Alimentação</option>
+                <option value="Serviços De Limpeza E Saneamento">Serviços De Limpeza E Saneamento</option>
+                <option value="Serviços De Manutenção E Conservação">Serviços De Manutenção E Conservação</option>
+                <option value="Serviços De Processamento De Dados">Serviços De Processamento De Dados</option>
+                <option value="Serviços De Saúde">Serviços De Saúde</option>
+                <option value="Serviços De Telecomunicação">Serviços De Telecomunicação</option>
+                <option value="Serviços De Transportação De Pessoas E Bens">Serviços De Transportação De Pessoas E Bens</option>
+                <option value="Subsídios De Deslocação">Subsídios De Deslocação</option>
+                <option value="Víveres E Géneros Alimentícios">Víveres E Géneros Alimentícios</option>
+                <option value="Vencimentos De Outro Pessoal Civil">Vencimentos De Outro Pessoal Civil</option>
+            </select>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['natureza_pagamento'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <span class="text-danger"><?php echo e($message); ?></span> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        </div>
+        <div class="col-md-2">
+            <input type="number" step="0.01" class="form-control" placeholder="Valor (Kz)" wire:model.defer="valor">
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['valor'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <span class="text-danger"><?php echo e($message); ?></span> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        </div>
+        <div class="col-md-2">
+            <select class="form-select" wire:model.defer="fonte_financiamento">
+                <option value="">Selecione a Fonte</option>
+                <option value="RP">RP</option>
+                <option value="ROT">ROT</option>
+            </select>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['fonte_financiamento'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <span class="text-danger"><?php echo e($message); ?></span> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        </div>
+        <div class="col-md-2">
+            <input type="datetime-local" class="form-control" wire:model.defer="data_cadastro">
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['data_cadastro'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <span class="text-danger"><?php echo e($message); ?></span> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        </div>
+        <div class="col-md-2">
+            <select class="form-select" wire:model.defer="tipo">
+                <option value="entrada">Entrada</option>
+                <option value="saida">Saída</option>
+            </select>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['tipo'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <span class="text-danger"><?php echo e($message); ?></span> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" wire:model.defer="factura_id">
+                <option value="">Selecione a Fatura</option>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $facturas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $fatura): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($fatura->id); ?>"><?php echo e($fatura->numero_factura); ?> - <?php echo e($fatura->empresa_nome); ?></option>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </select>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['factura_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <span class="text-danger"><?php echo e($message); ?></span> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">
+                <?php echo e($modoEdicao ? 'Atualizar' : 'Cadastrar'); ?>
+
+            </button>
+        </div>
+    </form>
+
+    
+    <form wire:submit.prevent="filtrarPorData" class="row g-2 mb-3 align-items-end">
+        <div class="col-auto">
+            <label style="color:#4a5a6a;font-weight:500;">De</label>
+            <input type="date" class="form-control" wire:model.defer="data_inicio" style="background:#e9eef6;border:1px solid #d3dbe7;color:#222;">
+        </div>
+        <div class="col-auto">
+            <label style="color:#4a5a6a;font-weight:500;">Até</label>
+            <input type="date" class="form-control" wire:model.defer="data_fim" style="background:#e9eef6;border:1px solid #d3dbe7;color:#222;">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn" style="background:#e9eef6;color:#1877F2;font-weight:600;border:none;">Filtrar</button>
+        </div>
+        <div class="col-auto">
+            <button type="button" class="btn" style="background:#f4f6fa;color:#1877F2;font-weight:600;border:1px solid #e9eef6;" wire:click="resetarFormulario">Limpar</button>
+        </div>
+    </form>
+
+    
+    <div class="table-responsive" style="border-radius:18px;box-shadow:0 2px 16px rgba(24,119,242,0.10);overflow-x:auto;margin-top:18px;padding-bottom:16px;padding-right:24px;">
+        <table class="table align-middle mb-0" style="background:#fff;border-radius:18px;overflow:hidden;">
+            <thead style="background:#1877F2;color:#fff;">
+                <tr style="font-size:0.98rem;">
+                    <th style="border:none;background:#1877F2;color:#fff;">Nº Ordem</th>
+                    <th style="border:none;background:#1877F2;color:#fff;">Empresa</th>
+                    <th style="border:none;background:#1877F2;color:#fff;">Descrição</th>
+                    <th style="border:none;background:#1877F2;color:#fff;">Natureza</th>
+                    <th style="border:none;background:#1877F2;color:#fff;">Valor (Kz)</th>
+                    <th style="border:none;background:#1877F2;color:#fff;">Fonte</th>
+                    <th style="border:none;background:#1877F2;color:#fff;">Fatura Associada</th>
+                    <th style="border:none;background:#1877F2;color:#fff;">Data Cadastro</th>
+                    <th style="border:none;background:#1877F2;color:#fff;">Tipo</th>
+                    <th style="border:none;background:#1877F2;color:#fff;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $movimentos; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $mov): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                    <tr style="transition:background 0.2s;">
+                        <td style="font-weight:600;"><?php echo e($mov->numero_ordem); ?></td>
+                        <td><?php echo e($mov->empresa); ?></td>
+                        <td><?php echo e($mov->descricao); ?></td>
+                        <td><span class="badge" style="background:#eaf1fb;color:#1877F2;font-weight:500;font-size:0.98rem;"><?php echo e($mov->natureza_pagamento); ?></span></td>
+                        <td style="font-weight:600;color:#1877F2;">Kz <?php echo e(number_format($mov->valor, 2, ',', '.')); ?></td>
+                        <td><span class="badge" style="background:#e9eef6;color:#1877F2;font-size:0.97rem;font-weight:600;"><?php echo e($mov->fonte_financiamento); ?></span></td>
+                        <td>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($mov->factura): ?>
+                                <a href="<?php echo e(route('facturas.show', $mov->factura->id)); ?>" target="_blank" style="color:#1877F2;text-decoration:underline;font-weight:500;"><?php echo e($mov->factura->numero_factura); ?></a>
+                            <?php else: ?>
+                                <span style="color:#bbb;">-</span>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        </td>
+                        <td><?php echo e(\Carbon\Carbon::parse($mov->data_cadastro)->format('d/m/Y H:i')); ?></td>
+                        <td>
+                            <span class="badge" style="background:<?php echo e($mov->tipo == 'entrada' ? '#1ca65c' : '#e74c3c'); ?>;color:#fff;font-size:1rem;font-weight:600;min-width:70px;display:inline-block;"><?php echo e(ucfirst($mov->tipo)); ?></span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm" style="background:#1877F2;color:#fff;font-weight:600;border:none;border-radius:6px;padding:4px 14px 4px 14px;box-shadow:0 1px 4px rgba(24,119,242,0.07);margin-right:4px;" wire:click="editarMovimento(<?php echo e($mov->id); ?>)">Editar</button>
+                            <button class="btn btn-sm" style="background:#e74c3c;color:#fff;font-weight:600;border:none;border-radius:6px;padding:4px 14px 4px 14px;box-shadow:0 1px 4px rgba(24,119,242,0.07);" wire:click="excluirMovimento(<?php echo e($mov->id); ?>)" onclick="return confirm('Tem certeza?')">Excluir</button>
+                        </td>
+                    </tr>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                    <tr>
+                        <td colspan="10" class="text-center" style="color:#888;font-size:1.1rem;">Nenhum movimento encontrado.</td>
+                    </tr>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+<?php /**PATH C:\Users\Administrator\Documents\INVOICE_LARAVEL - PRODUÇÃO\backend-laravel10\resources\views/livewire/movimentos.blade.php ENDPATH**/ ?>

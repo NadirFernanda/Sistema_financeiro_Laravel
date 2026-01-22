@@ -1,0 +1,29 @@
+<IfModule mod_rewrite.c>
+    # Permitir 'unsafe-eval' para Livewire funcionar corretamente
+    Header set Content-Security-Policy "script-src 'self' 'unsafe-eval';"
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Ensure .js files are served with the correct Content-Type
+<FilesMatch "\.js$">
+    ForceType application/javascript
+</FilesMatch>
+</IfModule>

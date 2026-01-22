@@ -1,0 +1,170 @@
+<?php
+
+namespace App\Livewire;
+
+
+use Livewire\Component;
+use App\Models\Movimento;
+use Illuminate\Support\Facades\DB;
+
+
+class Movimentos extends Component
+{
+    public $movimentos = [];
+    public $numero_ordem;
+    public $empresa;
+    public $descricao;
+    public $natureza_pagamento;
+    public $valor;
+    public $fonte_financiamento;
+    public $data_cadastro;
+    public $factura_id;
+    public $tipo = 'entrada';
+    public $movimento_id;
+    public $data_inicio;
+    public $data_fim;
+    public $modoEdicao = false;
+    public $mensagem = '';
+    public $facturas = [];
+
+    public $total_entradas = 0;
+    public $total_saidas = 0;
+    public $saldo = 0;
+
+    public function mount()
+    {
+        $this->carregarFacturas();
+        $this->carregarMovimentos();
+        $this->calcularResumo();
+    }
+
+    public function carregarFacturas()
+    {
+        $this->facturas = \App\Models\Factura::all();
+    }
+
+    public function carregarMovimentos()
+    {
+        $query = Movimento::query();
+        if ($this->data_inicio && $this->data_fim) {
+            $query->whereBetween('data_cadastro', [$this->data_inicio, $this->data_fim]);
+        }
+        $this->movimentos = $query->orderByDesc('data_cadastro')->get();
+        $this->calcularResumo();
+    }
+
+    public function calcularResumo()
+    {
+        $this->total_entradas = Movimento::where('tipo', 'entrada')->sum('valor');
+        $this->total_saidas = Movimento::where('tipo', 'saida')->sum('valor');
+        $this->saldo = $this->total_entradas - $this->total_saidas;
+    }
+
+    public function salvarMovimento()
+    {
+        // Corrigir: se factura_id for vazio, definir como null
+        if (empty($this->factura_id)) {
+            $this->factura_id = null;
+        }
+        $this->validate([
+            'empresa' => 'required|string',
+            'descricao' => 'required|string',
+            'natureza_pagamento' => 'required|string',
+            'valor' => 'required|numeric|min:0.01',
+            'fonte_financiamento' => 'required|string',
+            'data_cadastro' => 'required|date',
+            'tipo' => 'required|in:entrada,saida',
+            'factura_id' => 'nullable|exists:facturas,id',
+        ]);
+
+        // Gerar número de ordem automaticamente
+        $ultimo = Movimento::orderByDesc('numero_ordem')->first();
+        $novo_numero = $ultimo ? $ultimo->numero_ordem + 1 : 1;
+
+        if ($this->modoEdicao && $this->movimento_id) {
+            $mov = Movimento::find($this->movimento_id);
+            if ($mov) {
+                $mov->update([
+                    'numero_ordem' => $mov->numero_ordem,
+                    'empresa' => $this->empresa,
+                    'descricao' => $this->descricao,
+                    'natureza_pagamento' => $this->natureza_pagamento,
+                    'valor' => $this->valor,
+                    'fonte_financiamento' => $this->fonte_financiamento,
+                    'data_cadastro' => $this->data_cadastro,
+                    'factura_id' => $this->factura_id,
+                    'tipo' => $this->tipo,
+                ]);
+                $this->mensagem = 'Movimento atualizado com sucesso!';
+            }
+        } else {
+            Movimento::create([
+                'numero_ordem' => $novo_numero,
+                'empresa' => $this->empresa,
+                'descricao' => $this->descricao,
+                'natureza_pagamento' => $this->natureza_pagamento,
+                'valor' => $this->valor,
+                'fonte_financiamento' => $this->fonte_financiamento,
+                'data_cadastro' => $this->data_cadastro,
+                'factura_id' => $this->factura_id,
+                'tipo' => $this->tipo,
+            ]);
+            $this->mensagem = 'Movimento cadastrado com sucesso!';
+        }
+        $this->resetarFormulario();
+        $this->carregarMovimentos();
+    }
+
+    public function editarMovimento($id)
+    {
+        $mov = Movimento::find($id);
+        if ($mov) {
+            $this->movimento_id = $mov->id;
+            $this->empresa = $mov->empresa;
+            $this->descricao = $mov->descricao;
+            $this->natureza_pagamento = $mov->natureza_pagamento;
+            $this->valor = $mov->valor;
+            $this->fonte_financiamento = $mov->fonte_financiamento;
+            $this->data_cadastro = $mov->data_cadastro;
+            $this->factura_id = $mov->factura_id;
+            $this->tipo = $mov->tipo;
+            $this->modoEdicao = true;
+        }
+    }
+
+    public function excluirMovimento($id)
+    {
+        Movimento::destroy($id);
+        $this->mensagem = 'Movimento excluído com sucesso!';
+        $this->resetarFormulario();
+        $this->carregarMovimentos();
+    }
+
+    public function resetarFormulario()
+    {
+        $this->movimento_id = null;
+        $this->numero_ordem = '';
+        $this->empresa = '';
+        $this->descricao = '';
+        $this->natureza_pagamento = '';
+        $this->valor = '';
+        $this->fonte_financiamento = '';
+        $this->data_cadastro = '';
+        $this->factura_id = '';
+        $this->tipo = 'entrada';
+        $this->modoEdicao = false;
+        $this->data_inicio = '';
+        $this->data_fim = '';
+        $this->carregarMovimentos();
+    }
+
+    public function filtrarPorData()
+    {
+        $this->carregarMovimentos();
+    }
+
+    public function render()
+    {
+        return view('livewire.movimentos');
+    }
+}

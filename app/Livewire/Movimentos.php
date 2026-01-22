@@ -10,6 +10,41 @@ use Illuminate\Support\Facades\DB;
 
 class Movimentos extends Component
 {
+
+    public function getPodeEditarProperty()
+    {
+        $user = auth()->user();
+        if (!$user || !isset($user->role)) return false;
+        $role = strtolower($user->role);
+        return in_array($role, ['admin', 'secretaria']);
+    }
+
+    public function getPodeEliminarProperty()
+    {
+        $user = auth()->user();
+        if (!$user || !isset($user->role)) return false;
+        $role = strtolower($user->role);
+        return in_array($role, ['admin', 'secretaria']);
+    }
+    // Permissão pública para uso no Blade (igual Faturas)
+    public function getPodeInserirProperty()
+    {
+        $user = auth()->user();
+        if (!$user || !isset($user->role)) return false;
+        $role = strtolower($user->role);
+        return in_array($role, ['admin', 'secretaria', 'contratacao']);
+    }
+    protected $messages = [
+        'empresa.required' => 'O campo Empresa é obrigatório.',
+        'descricao.required' => 'O campo Descrição da Despesa é obrigatório.',
+        'natureza_pagamento.required' => 'O campo Natureza Pagamento é obrigatório.',
+        'valor.required' => 'O campo Valor é obrigatório.',
+        'valor.min' => 'O valor deve ser maior que zero.',
+        'fonte_financiamento.required' => 'O campo Fonte de Financiamento é obrigatório.',
+        'data_cadastro.required' => 'O campo Data de Cadastro é obrigatório.',
+        'tipo.required' => 'O campo Tipo é obrigatório.',
+        'factura_id.exists' => 'A fatura selecionada não existe.',
+    ];
     public $movimentos = [];
     public $numero_ordem;
     public $empresa;
@@ -75,7 +110,7 @@ class Movimentos extends Component
             'data_cadastro' => 'required|date',
             'tipo' => 'required|in:entrada,saida',
             'factura_id' => 'nullable|exists:facturas,id',
-        ]);
+        ], $this->messages);
 
         // Gerar número de ordem automaticamente
         $ultimo = Movimento::orderByDesc('numero_ordem')->first();

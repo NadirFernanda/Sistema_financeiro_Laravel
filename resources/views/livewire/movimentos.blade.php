@@ -1,5 +1,5 @@
 <div style="background:#f4f6fa;min-height:100vh;padding:0 0 32px 0;">
-    <div style="display:flex;justify-content:flex-end;align-items:center;padding:24px 36px 0 0;max-width:98vw;">
+    <div style="display:flex;justify-content:flex-start;align-items:center;padding:24px 0 0 36px;max-width:98vw;">
         <a href="{{ route('dashboard') }}" class="btn btn-primary" style="background:#1877F2;border:none;font-weight:600;font-size:1.08rem;border-radius:8px;padding:8px 22px;box-shadow:0 1px 6px rgba(24,119,242,0.10);">
             <i class="bi bi-arrow-left" style="margin-right:6px;"></i> Voltar ao Dashboard
         </a>
@@ -32,87 +32,89 @@
         <div class="alert alert-success">{{ $mensagem }}</div>
     @endif
 
-    {{-- Formulário de cadastro de movimento --}}
-    <form wire:submit.prevent="salvarMovimento" class="row g-3 mb-4">
-        <div class="col-md-2">
-            <input type="text" class="form-control" placeholder="Empresa" wire:model.defer="empresa">
-            @error('empresa') <span class="text-danger">{{ $message }}</span> @enderror
-        </div>
-        <div class="col-md-2">
-            <input type="text" class="form-control" placeholder="Descrição da Despesa" wire:model.defer="descricao">
-            @error('descricao') <span class="text-danger">{{ $message }}</span> @enderror
-        </div>
-        <div class="col-md-2">
-            <select class="form-select" wire:model.defer="natureza_pagamento">
-                <option value="">Selecione</option>
-                <option value="Abono De Família Subsídios Do Pessoal Civil">Abono De Família Subsídios Do Pessoal Civil</option>
-                <option value="Aquisição De Mobiliário">Aquisição De Mobiliário</option>
-                <option value="Bilhetes De Passagem">Bilhetes De Passagem</option>
-                <option value="Combustíveis E Lubrificantes">Combustíveis E Lubrificantes</option>
-                <option value="Contribuições Do Empregador Para A Segurança Social">Contribuições Do Empregador Para A Segurança Social</option>
-                <option value="Décimo Terceiro Mês Do Pessoal Civil">Décimo Terceiro Mês Do Pessoal Civil</option>
-                <option value="Encargos Aduaneiros E Portuários">Encargos Aduaneiros E Portuários</option>
-                <option value="Material De Consumo Corrente Especializado">Material De Consumo Corrente Especializado</option>
-                <option value="Materiais E Utensílios Duradouros De Especialidade">Materiais E Utensílios Duradouros De Especialidade</option>
-                <option value="Outros Materiais De Consumo Corrente">Outros Materiais De Consumo Corrente</option>
-                <option value="Outros Materiais E Utensilios Duradouros">Outros Materiais E Utensilios Duradouros</option>
-                <option value="Outros Serviços">Outros Serviços</option>
-                <option value="Rendas De Imoveis">Rendas De Imoveis</option>
-                <option value="Seguros">Seguros</option>
-                <option value="Serviço De Protecção E Vigilância">Serviço De Protecção E Vigilância</option>
-                <option value="Serviços De Água E Electricidade">Serviços De Água E Electricidade</option>
-                <option value="Serviços De Ensino E Formação">Serviços De Ensino E Formação</option>
-                <option value="Serviços De Hospedagem E Alimentação">Serviços De Hospedagem E Alimentação</option>
-                <option value="Serviços De Limpeza E Saneamento">Serviços De Limpeza E Saneamento</option>
-                <option value="Serviços De Manutenção E Conservação">Serviços De Manutenção E Conservação</option>
-                <option value="Serviços De Processamento De Dados">Serviços De Processamento De Dados</option>
-                <option value="Serviços De Saúde">Serviços De Saúde</option>
-                <option value="Serviços De Telecomunicação">Serviços De Telecomunicação</option>
-                <option value="Serviços De Transportação De Pessoas E Bens">Serviços De Transportação De Pessoas E Bens</option>
-                <option value="Subsídios De Deslocação">Subsídios De Deslocação</option>
-                <option value="Víveres E Géneros Alimentícios">Víveres E Géneros Alimentícios</option>
-                <option value="Vencimentos De Outro Pessoal Civil">Vencimentos De Outro Pessoal Civil</option>
-            </select>
-            @error('natureza_pagamento') <span class="text-danger">{{ $message }}</span> @enderror
-        </div>
-        <div class="col-md-2">
-            <input type="number" step="0.01" class="form-control" placeholder="Valor (Kz)" wire:model.defer="valor">
-            @error('valor') <span class="text-danger">{{ $message }}</span> @enderror
-        </div>
-        <div class="col-md-2">
-            <select class="form-select" wire:model.defer="fonte_financiamento">
-                <option value="">Selecione a Fonte</option>
-                <option value="RP">RP</option>
-                <option value="ROT">ROT</option>
-            </select>
-            @error('fonte_financiamento') <span class="text-danger">{{ $message }}</span> @enderror
-        </div>
-        <div class="col-md-2">
-            <input type="datetime-local" class="form-control" wire:model.defer="data_cadastro">
-            @error('data_cadastro') <span class="text-danger">{{ $message }}</span> @enderror
-        </div>
-        <div class="col-md-2">
-            <select class="form-select" wire:model.defer="tipo">
-                <option value="entrada">Entrada</option>
-                <option value="saida">Saída</option>
-            </select>
-            @error('tipo') <span class="text-danger">{{ $message }}</span> @enderror
-        </div>
-        <div class="col-md-3">
-            <select class="form-select" wire:model.defer="factura_id">
-                <option value="">Selecione a Fatura</option>
-                @foreach ($facturas as $fatura)
-                    <option value="{{ $fatura->id }}">{{ $fatura->numero_factura }} - {{ $fatura->empresa_nome }}</option>
-                @endforeach
-            </select>
-            @error('factura_id') <span class="text-danger">{{ $message }}</span> @enderror
-        </div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100">
-                {{ $modoEdicao ? 'Atualizar' : 'Cadastrar' }}
-            </button>
-        </div>
-    </form>
+    @if($this->podeInserir)
+        {{-- Formulário de cadastro de movimento --}}
+        <form wire:submit.prevent="salvarMovimento" class="row g-3 mb-4">
+            <div class="col-md-2">
+                <input type="text" class="form-control" placeholder="Empresa" wire:model.defer="empresa">
+                @error('empresa') <span class="text-danger">{{ $message }}</span> @enderror
+            </div>
+            <div class="col-md-2">
+                <input type="text" class="form-control" placeholder="Descrição da Despesa" wire:model.defer="descricao">
+                @error('descricao') <span class="text-danger">{{ $message }}</span> @enderror
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" wire:model.defer="natureza_pagamento">
+                    <option value="">Selecione</option>
+                    <option value="Abono De Família Subsídios Do Pessoal Civil">Abono De Família Subsídios Do Pessoal Civil</option>
+                    <option value="Aquisição De Mobiliário">Aquisição De Mobiliário</option>
+                    <option value="Bilhetes De Passagem">Bilhetes De Passagem</option>
+                    <option value="Combustíveis E Lubrificantes">Combustíveis E Lubrificantes</option>
+                    <option value="Contribuições Do Empregador Para A Segurança Social">Contribuições Do Empregador Para A Segurança Social</option>
+                    <option value="Décimo Terceiro Mês Do Pessoal Civil">Décimo Terceiro Mês Do Pessoal Civil</option>
+                    <option value="Encargos Aduaneiros E Portuários">Encargos Aduaneiros E Portuários</option>
+                    <option value="Material De Consumo Corrente Especializado">Material De Consumo Corrente Especializado</option>
+                    <option value="Materiais E Utensílios Duradouros De Especialidade">Materiais E Utensílios Duradouros De Especialidade</option>
+                    <option value="Outros Materiais De Consumo Corrente">Outros Materiais De Consumo Corrente</option>
+                    <option value="Outros Materiais E Utensilios Duradouros">Outros Materiais E Utensilios Duradouros</option>
+                    <option value="Outros Serviços">Outros Serviços</option>
+                    <option value="Rendas De Imoveis">Rendas De Imoveis</option>
+                    <option value="Seguros">Seguros</option>
+                    <option value="Serviço De Protecção E Vigilância">Serviço De Protecção E Vigilância</option>
+                    <option value="Serviços De Água E Electricidade">Serviços De Água E Electricidade</option>
+                    <option value="Serviços De Ensino E Formação">Serviços De Ensino E Formação</option>
+                    <option value="Serviços De Hospedagem E Alimentação">Serviços De Hospedagem E Alimentação</option>
+                    <option value="Serviços De Limpeza E Saneamento">Serviços De Limpeza E Saneamento</option>
+                    <option value="Serviços De Manutenção E Conservação">Serviços De Manutenção E Conservação</option>
+                    <option value="Serviços De Processamento De Dados">Serviços De Processamento De Dados</option>
+                    <option value="Serviços De Saúde">Serviços De Saúde</option>
+                    <option value="Serviços De Telecomunicação">Serviços De Telecomunicação</option>
+                    <option value="Serviços De Transportação De Pessoas E Bens">Serviços De Transportação De Pessoas E Bens</option>
+                    <option value="Subsídios De Deslocação">Subsídios De Deslocação</option>
+                    <option value="Víveres E Géneros Alimentícios">Víveres E Géneros Alimentícios</option>
+                    <option value="Vencimentos De Outro Pessoal Civil">Vencimentos De Outro Pessoal Civil</option>
+                </select>
+                @error('natureza_pagamento') <span class="text-danger">{{ $message }}</span> @enderror
+            </div>
+            <div class="col-md-2">
+                <input type="number" step="0.01" class="form-control" placeholder="Valor (Kz)" wire:model.defer="valor">
+                @error('valor') <span class="text-danger">{{ $message }}</span> @enderror
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" wire:model.defer="fonte_financiamento">
+                    <option value="">Selecione a Fonte</option>
+                    <option value="RP">RP</option>
+                    <option value="ROT">ROT</option>
+                </select>
+                @error('fonte_financiamento') <span class="text-danger">{{ $message }}</span> @enderror
+            </div>
+            <div class="col-md-2">
+                <input type="datetime-local" class="form-control" wire:model.defer="data_cadastro">
+                @error('data_cadastro') <span class="text-danger">{{ $message }}</span> @enderror
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" wire:model.defer="tipo">
+                    <option value="entrada">Entrada</option>
+                    <option value="saida">Saída</option>
+                </select>
+                @error('tipo') <span class="text-danger">{{ $message }}</span> @enderror
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" wire:model.defer="factura_id">
+                    <option value="">Selecione a Fatura</option>
+                    @foreach ($facturas as $fatura)
+                        <option value="{{ $fatura->id }}">{{ $fatura->numero_factura }} - {{ $fatura->empresa_nome }}</option>
+                    @endforeach
+                </select>
+                @error('factura_id') <span class="text-danger">{{ $message }}</span> @enderror
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    {{ $modoEdicao ? 'Atualizar' : 'Cadastrar' }}
+                </button>
+            </div>
+        </form>
+    @endif
 
     {{-- Filtro por data --}}
     <form wire:submit.prevent="filtrarPorData" class="row g-2 mb-3 align-items-end">
@@ -170,8 +172,14 @@
                             <span class="badge" style="background:{{ $mov->tipo == 'entrada' ? '#1ca65c' : '#e74c3c' }};color:#fff;font-size:1rem;font-weight:600;min-width:70px;display:inline-block;">{{ ucfirst($mov->tipo) }}</span>
                         </td>
                         <td>
-                            <button class="btn btn-sm" style="background:#1877F2;color:#fff;font-weight:600;border:none;border-radius:6px;padding:4px 14px 4px 14px;box-shadow:0 1px 4px rgba(24,119,242,0.07);margin-right:4px;" wire:click="editarMovimento({{ $mov->id }})">Editar</button>
-                            <button class="btn btn-sm" style="background:#e74c3c;color:#fff;font-weight:600;border:none;border-radius:6px;padding:4px 14px 4px 14px;box-shadow:0 1px 4px rgba(24,119,242,0.07);" wire:click="excluirMovimento({{ $mov->id }})" onclick="return confirm('Tem certeza?')">Excluir</button>
+                            @if(auth()->user()->papel !== 'contratacao')
+                                @if($this->podeEditar)
+                                    <button class="btn btn-sm" style="background:#1877F2;color:#fff;font-weight:600;border:none;border-radius:6px;padding:4px 14px 4px 14px;box-shadow:0 1px 4px rgba(24,119,242,0.07);margin-right:4px;" wire:click="editarMovimento({{ $mov->id }})">Editar</button>
+                                @endif
+                                @if($this->podeEliminar)
+                                    <button class="btn btn-sm" style="background:#e74c3c;color:#fff;font-weight:600;border:none;border-radius:6px;padding:4px 14px 4px 14px;box-shadow:0 1px 4px rgba(24,119,242,0.07);" wire:click="excluirMovimento({{ $mov->id }})" onclick="return confirm('Tem certeza?')">Excluir</button>
+                                @endif
+                            @endif
                         </td>
                     </tr>
                 @empty

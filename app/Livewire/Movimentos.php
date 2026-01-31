@@ -14,7 +14,7 @@ class Movimentos extends Component
     public function updatedTipo($value)
     {
         if ($value === 'entrada') {
-            $this->factura_id = '';
+            $this->factura_id = null;
         }
     }
 
@@ -61,7 +61,7 @@ class Movimentos extends Component
     public $valor;
     public $fonte_financiamento;
     public $data_cadastro;
-    public $factura_id;
+    public $factura_id = null;
     public $tipo = 'entrada';
     public $movimento_id;
     public $data_inicio;
@@ -114,12 +114,8 @@ class Movimentos extends Component
             'fonte_financiamento' => 'required|string',
             'data_cadastro' => 'required|date',
             'tipo' => 'required|in:entrada,saida',
+            'factura_id' => $this->tipo === 'saida' ? 'required|exists:facturas,id' : 'nullable',
         ];
-        if ($this->tipo === 'saida') {
-            $rules['factura_id'] = 'required|exists:facturas,id';
-        } else {
-            $rules['factura_id'] = 'nullable';
-        }
         $this->validate($rules, $this->messages);
 
         // Gerar número de ordem automaticamente
@@ -195,7 +191,7 @@ class Movimentos extends Component
         $this->valor = '';
         $this->fonte_financiamento = '';
         $this->data_cadastro = '';
-        $this->factura_id = '';
+        $this->factura_id = null;
         $this->tipo = 'entrada';
         $this->modoEdicao = false;
         $this->data_inicio = '';

@@ -40,11 +40,11 @@
                 @error('empresa') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
             <div class="col-md-2">
-                <input type="text" class="form-control" placeholder="Descrição da Despesa" wire:model.defer="descricao" required>
+                <input type="text" class="form-control" placeholder="Descrição da Despesa" wire:model.defer="descricao">
                 @error('descricao') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
             <div class="col-md-2">
-                <select class="form-select" wire:model.defer="natureza_pagamento" required>
+                <select class="form-select" wire:model.defer="natureza_pagamento">
                     <option value="">Selecione</option>
                     <option value="Abono De Família Subsídios Do Pessoal Civil">Abono De Família Subsídios Do Pessoal Civil</option>
                     <option value="Aquisição De Mobiliário">Aquisição De Mobiliário</option>
@@ -77,11 +77,11 @@
                 @error('natureza_pagamento') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
             <div class="col-md-2">
-                <input type="number" step="0.01" class="form-control" placeholder="Valor (Kz)" wire:model.defer="valor" required>
+                <input type="number" step="0.01" class="form-control" placeholder="Valor (Kz)" wire:model.defer="valor">
                 @error('valor') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
             <div class="col-md-2">
-                <select class="form-select" wire:model.defer="fonte_financiamento" required>
+                <select class="form-select" wire:model.defer="fonte_financiamento">
                     <option value="">Selecione a Fonte</option>
                     <option value="RP">RP</option>
                     <option value="ROT">ROT</option>
@@ -89,11 +89,11 @@
                 @error('fonte_financiamento') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
             <div class="col-md-2">
-                <input type="datetime-local" class="form-control" wire:model.defer="data_cadastro" required>
+                <input type="datetime-local" class="form-control" wire:model.defer="data_cadastro">
                 @error('data_cadastro') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
             <div class="col-md-2">
-                <select class="form-select" wire:model="tipo" required>
+                <select class="form-select" wire:model="tipo">
                     <option value="entrada">Entrada</option>
                     <option value="saida">Saída</option>
                 </select>
@@ -103,7 +103,7 @@
             {{-- SÓ MOSTRA SE FOR SAÍDA --}}
             @if ($tipo === 'saida')
                 <div class="col-md-3">
-                    <select class="form-select" wire:model="factura_id" required>
+                    <select class="form-select" wire:model="factura_id">
                         <option value="">Selecione a Fatura</option>
                         @foreach ($facturas as $fatura)
                             <option value="{{ $fatura->id }}">{{ $fatura->numero_factura }} - {{ $fatura->empresa_nome }}</option>

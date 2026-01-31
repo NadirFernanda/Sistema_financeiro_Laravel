@@ -16,6 +16,11 @@
                     <option value="admin">Admin</option>
                     <option value="financeiro">Financeiro</option>
                     <option value="usuario">Usuário</option>
+                    <option value="secretaria">Secretaria</option>
+                    <option value="contratacao">Contratação Pública</option>
+                    <option value="executor">Executor</option>
+                    <option value="gabinete">Gabinete do Presidente</option>
+                    <option value="presidente">Presidente</option>
                 </select>
                 @error('role') <span class="text-danger small">{{ $message }}</span> @enderror
             </div>
@@ -36,7 +41,7 @@
         </div>
     </form>
     @endif
-    <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:12px;">
+    <div style="display:flex;justify-content:flex-start;align-items:center;margin-bottom:12px;">
         <a href="{{ route('dashboard') }}" class="btn btn-primary" style="background:#1877F2;border:none;font-weight:600;font-size:1.08rem;border-radius:8px;padding:8px 22px;box-shadow:0 1px 6px rgba(24,119,242,0.10);">
             <i class="bi bi-arrow-left" style="margin-right:6px;"></i> Voltar ao Dashboard
         </a>

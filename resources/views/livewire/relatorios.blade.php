@@ -1,5 +1,5 @@
 <div>
-	<div style="position:fixed;top:24px;right:32px;z-index:9999;">
+	<div style="margin-bottom:18px;">
 		<a href="/dashboard" class="btn" style="background:#1877F2;color:#fff;font-weight:600;font-size:1.12rem;border-radius:18px;padding:10px 28px;box-shadow:0 1px 6px rgba(24,119,242,0.10);text-decoration:none;display:inline-block;">
 			← Voltar ao Dashboard
 		</a>

@@ -30,6 +30,11 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                     <option value="admin">Admin</option>
                     <option value="financeiro">Financeiro</option>
                     <option value="usuario">Usuário</option>
+                    <option value="secretaria">Secretaria</option>
+                    <option value="contratacao">Contratação Pública</option>
+                    <option value="executor">Executor</option>
+                    <option value="gabinete">Gabinete do Presidente</option>
+                    <option value="presidente">Presidente</option>
                 </select>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['role'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -57,7 +62,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
         </div>
     </form>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-    <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:12px;">
+    <div style="display:flex;justify-content:flex-start;align-items:center;margin-bottom:12px;">
         <a href="<?php echo e(route('dashboard')); ?>" class="btn btn-primary" style="background:#1877F2;border:none;font-weight:600;font-size:1.08rem;border-radius:8px;padding:8px 22px;box-shadow:0 1px 6px rgba(24,119,242,0.10);">
             <i class="bi bi-arrow-left" style="margin-right:6px;"></i> Voltar ao Dashboard
         </a>
@@ -111,4 +116,4 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
 
 
 
-<?php /**PATH C:\Users\Administrator\Documents\INVOICE_LARAVEL\backend-laravel10\resources\views/livewire/usuarios.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\Users\Administrator\Documents\INVOICE_LARAVEL - PRODUÇÃO\backend-laravel10\resources\views/livewire/usuarios.blade.php ENDPATH**/ ?>

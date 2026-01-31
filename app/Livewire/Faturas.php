@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Livewire;
-
 
 use Livewire\Component;
 use App\Models\Factura;
@@ -9,7 +7,49 @@ use App\Models\Usuario;
 use Livewire\WithFileUploads;
 
 class Faturas extends Component
-{
+    // Permissões públicas para uso no Blade (Livewire computed properties)
+    {
+        // Permissões públicas para uso no Blade (Livewire computed properties)
+        public function getPodeInserirProperty()
+        {
+            return $this->usuarioPodeInserir();
+        }
+    
+        public function getPodeEditarProperty()
+        {
+            return $this->usuarioPodeEditar();
+        }
+    
+        public function getPodeVisualizarProperty()
+        {
+            return $this->usuarioPodeVisualizar();
+        }
+    
+
+    private function usuarioPodeInserir()
+    {
+        $user = auth()->user();
+        return in_array(strtolower($user->role), ['admin', 'secretaria', 'contratacao']);
+    }
+
+    private function usuarioPodeEditar()
+    {
+        $user = auth()->user();
+        return in_array(strtolower($user->role), ['admin', 'executor']);
+    }
+
+    private function usuarioPodeVisualizar()
+    {
+        $user = auth()->user();
+        return in_array(strtolower($user->role), ['gabinete', 'presidente']);
+    }
+
+    private function usuarioPodeExcluir()
+    {
+        $user = auth()->user();
+        // Só admin e secretaria podem excluir
+        return in_array(strtolower($user->role), ['admin', 'secretaria']);
+    }
 
 
     public function toggleForm()
@@ -124,6 +164,19 @@ class Faturas extends Component
     {
         $this->successMessage = '';
         $this->errorMessage = '';
+        $user = auth()->user();
+        // Secretaria e Contratação Pública só inserem
+        if ($this->isEdit) {
+            if (!$this->usuarioPodeEditar()) {
+                $this->errorMessage = 'Você não tem permissão para editar faturas.';
+                return;
+            }
+        } else {
+            if (!$this->usuarioPodeInserir()) {
+                $this->errorMessage = 'Você não tem permissão para inserir faturas.';
+                return;
+            }
+        }
         $rules = $this->rules;
         $validated = $this->validate($rules, $this->messages);
         if (floatval($this->valor_pago) > floatval($this->valor_total)) {
@@ -131,8 +184,6 @@ class Faturas extends Component
             $this->successMessage = '';
             return;
         }
-
-        // Validação: Data de Pagamento >= Data de Execução
         if ($this->data_execucao && $this->data_pagamento) {
             $dataExecucao = strtotime($this->data_execucao);
             $dataPagamento = strtotime($this->data_pagamento);
@@ -142,8 +193,6 @@ class Faturas extends Component
                 return;
             }
         }
-
-        // Automatiza status conforme valores de pagamento
         $status = $this->status;
         if (in_array($status, ['aprovada', 'reprovada', 'revisao'])) {
             // Mantém status administrativo se definido
@@ -202,11 +251,15 @@ class Faturas extends Component
         $this->showForm = false;
         $this->resetForm();
         $this->loadFaturas();
-        $this->dispatch('fatura-salva'); // Livewire 3
+        $this->dispatch('fatura-salva');
     }
 
     public function edit($id)
     {
+        if (!$this->usuarioPodeEditar()) {
+            $this->errorMessage = 'Você não tem permissão para editar faturas.';
+            return;
+        }
         $fatura = Factura::where('numero_factura', $id)->first();
         $this->fatura_id = $fatura->numero_factura;
         $this->numero_factura = $fatura->numero_factura;
@@ -227,6 +280,10 @@ class Faturas extends Component
 
     public function delete($id)
     {
+        if (!$this->usuarioPodeExcluir()) {
+            $this->errorMessage = 'Você não tem permissão para excluir faturas.';
+            return;
+        }
         try {
             // Excluir movimentos associados à fatura
             $factura = Factura::where('numero_factura', $id)->first();
@@ -246,6 +303,10 @@ class Faturas extends Component
 
     public function render()
     {
+        // Força o formulário a não aparecer para gabinete/presidente
+        if ($this->usuarioPodeVisualizar()) {
+            $this->showForm = false;
+        }
         $usuarios = Usuario::orderBy('nome')->get();
         $faturas = Factura::orderBy('numero_factura', 'desc')->get();
         return view('livewire.faturas', [

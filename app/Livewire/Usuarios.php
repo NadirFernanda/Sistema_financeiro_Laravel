@@ -17,10 +17,11 @@ class Usuarios extends Component
     public $successMessage = '';
     public $errorMessage = '';
 
+
     protected $rules = [
         'nome' => 'required|min:3',
         'email' => 'required|email',
-        'role' => 'required|in:admin,financeiro,usuario',
+        'role' => 'required|in:admin,financeiro,usuario,secretaria,contratacao,executor,gabinete,presidente',
     ];
 
     protected $messages = [
@@ -29,7 +30,7 @@ class Usuarios extends Component
         'email.required' => 'O e-mail é obrigatório.',
         'email.email' => 'Informe um e-mail válido.',
         'role.required' => 'A função é obrigatória.',
-        'role.in' => 'Função inválida. Use admin, financeiro ou usuario.',
+        'role.in' => 'Função inválida. Use admin, financeiro, usuario, secretaria, contratacao, executor, gabinete ou presidente.',
     ];
 
     public function mount()

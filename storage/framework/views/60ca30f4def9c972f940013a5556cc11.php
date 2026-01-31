@@ -6,7 +6,7 @@
             // location.reload(); // Se necessário, recarrega a página
         });
     </script>
-    <div style="margin-bottom:18px;">
+    <div style="margin-bottom:18px;display:flex;justify-content:flex-start;align-items:center;">
         <a href="<?php echo e(url('/dashboard')); ?>" class="btn btn-outline-primary" style="border-radius:8px;padding:8px 22px;font-weight:500;font-size:1rem;">
             &#8592; Voltar
         </a>
@@ -31,10 +31,12 @@
         <button class="btn" wire:click="pesquisarFatura" style="background:#1877F2;color:#fff;font-weight:500;border:none;border-radius:8px;padding:10px 24px;font-size:1rem;transition:background 0.2s;">Pesquisar</button>
     </div>
 
-    <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
-        <button class="btn" style="background:#1877F2;color:#fff;font-weight:500;border:none;border-radius:8px;padding:10px 24px;font-size:1rem;transition:background 0.2s;" wire:click="toggleForm">Adicionar Fatura</button>
-    </div>
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($showForm): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($this->podeInserir): ?>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+            <button class="btn" style="background:#1877F2;color:#fff;font-weight:500;border:none;border-radius:8px;padding:10px 24px;font-size:1rem;transition:background 0.2s;" wire:click="toggleForm">Adicionar Fatura</button>
+        </div>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($showForm && $this->podeInserir): ?>
         <div class="card mb-4 shadow-lg border-0 mx-auto" style="border-radius:22px;background:#f8faff;padding:32px 28px 18px 28px;max-width:700px;">
             <div class="card-body p-0">
                 <form wire:submit.prevent="save" enctype="multipart/form-data">
@@ -230,8 +232,8 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
         </div>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-    <div style="background:#fff;border-radius:22px;padding:24px 32px;box-shadow:0 4px 24px rgba(24,119,242,0.10);margin-top:32px;">
-        <table class="table mb-0" style="width:100%;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(24,119,242,0.04);">
+    <div style="background:#fff;border-radius:22px;padding:24px 32px;box-shadow:0 4px 24px rgba(24,119,242,0.10);margin-top:32px;overflow-x:auto;">
+        <table class="table mb-0" style="min-width:1200px;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(24,119,242,0.04);">
             <thead style="background:#1877F2;color:#fff;font-weight:600;font-size:0.85rem;position:sticky;top:0;z-index:2;">
                 <tr>
                     <th style="padding:16px 10px;white-space:normal;word-break:break-word;min-width:75px;background:#1877F2;color:#fff;">Nº<br>Factura</th>
@@ -247,7 +249,9 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                     <th style="padding:16px 10px;white-space:normal;word-break:break-word;min-width:130px;background:#1877F2;color:#fff;">Observações</th>
                     <th style="padding:16px 10px;white-space:normal;word-break:break-word;min-width:75px;background:#1877F2;color:#fff;">Status</th>
                     <th style="padding:16px 10px;white-space:normal;word-break:break-word;min-width:75px;background:#1877F2;color:#fff;">Arquivo</th>
-                    <th style="padding:16px 10px;white-space:normal;word-break:break-word;min-width:75px;background:#1877F2;color:#fff;">Ações</th>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($this->podeEditar || $this->podeInserir): ?>
+                        <th style="padding:16px 10px;white-space:normal;word-break:break-word;min-width:75px;background:#1877F2;color:#fff;">Ações</th>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </tr>
             </thead>
             <tbody>
@@ -272,16 +276,22 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                                 <span style="color:#bbb;">-</span>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </td>
-                        <td style="padding:14px 10px;vertical-align:middle;">
-                            <div style="display:flex;flex-direction:column;align-items:flex-start;gap:8px;">
-                                <button class="btn btn-sm" style="background:#1877F2;color:#fff;border:none;border-radius:8px;padding:7px 18px;font-weight:600;transition:background 0.2s;cursor:pointer;z-index:10;position:relative;" wire:click="edit('<?php echo e($fatura->numero_factura); ?>')">Editar</button>
-                                <button class="btn btn-sm" style="background:#e74c3c;color:#fff;border:none;border-radius:8px;padding:7px 18px;font-weight:600;transition:background 0.2s;cursor:pointer;z-index:10;position:relative;"
-                                    onclick="return confirm('Tem certeza que deseja excluir esta fatura?')"
-                                    wire:click="delete('<?php echo e($fatura->numero_factura); ?>')">
-                                    Excluir
-                                </button>
-                            </div>
-                        </td>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($this->podeEditar || $this->podeInserir): ?>
+                            <td style="padding:14px 10px;vertical-align:middle;">
+                                <div style="display:flex;flex-direction:column;align-items:flex-start;gap:8px;">
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($this->podeEditar): ?>
+                                        <button class="btn btn-sm" style="background:#1877F2;color:#fff;border:none;border-radius:8px;padding:7px 18px;font-weight:600;transition:background 0.2s;cursor:pointer;z-index:10;position:relative;" wire:click="edit('<?php echo e($fatura->numero_factura); ?>')">Editar</button>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->user() && in_array(strtolower(auth()->user()->role), ['admin', 'secretaria'])): ?>
+                                        <button class="btn btn-sm" style="background:#e74c3c;color:#fff;border:none;border-radius:8px;padding:7px 18px;font-weight:600;transition:background 0.2s;cursor:pointer;z-index:10;position:relative;"
+                                            onclick="return confirm('ATENÇÃO: Ao excluir esta fatura, TODOS os movimentos associados e dados do gráfico também serão apagados DEFINITIVAMENTE.\n\nTem certeza que deseja continuar?')"
+                                            wire:click="delete('<?php echo e($fatura->numero_factura); ?>')">
+                                            Excluir
+                                        </button>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                </div>
+                            </td>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </tr>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>

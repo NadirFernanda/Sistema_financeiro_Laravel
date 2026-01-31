@@ -9,7 +9,7 @@ $__split = function ($name, $params = []) {
 
 $key = null;
 
-$key ??= \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::generateKey('lw-4013114575-0', null);
+$key ??= \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::generateKey('lw-1211005386-0', null);
 
 $__html = app('livewire')->mount($__name, $__params, $key);
 
@@ -23,4 +23,4 @@ if (isset($__slots)) unset($__slots);
 ?>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\Administrator\Documents\INVOICE_LARAVEL\backend-laravel10\resources\views/usuarios.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\Administrator\Documents\INVOICE_LARAVEL - PRODUÇÃO\backend-laravel10\resources\views/usuarios.blade.php ENDPATH**/ ?>

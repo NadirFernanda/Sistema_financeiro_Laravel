@@ -44,9 +44,13 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nome' => 'required',
-            'email' => 'required|email|unique:usuarios,email',
-            'role' => 'required',
+            'nome' => 'required|min:3',
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('usuarios', 'email'),
+            ],
+            'role' => 'required|in:admin,financeiro,usuario,secretaria,contratacao,executor,gabinete,presidente',
             'senha' => 'required|min:6',
         ]);
         $validated['senha'] = Hash::make($validated['senha']);
@@ -80,9 +84,13 @@ class UserController extends Controller
     {
         $usuario = Usuario::findOrFail($id);
         $validated = $request->validate([
-            'nome' => 'required',
-            'email' => 'required|email|unique:usuarios,email,' . $id,
-            'role' => 'required',
+            'nome' => 'required|min:3',
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('usuarios', 'email')->ignore($id),
+            ],
+            'role' => 'required|in:admin,financeiro,usuario,secretaria,contratacao,executor,gabinete,presidente',
         ]);
         $usuario->update($validated);
         return response()->json(['usuario' => $usuario]);

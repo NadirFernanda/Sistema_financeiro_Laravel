@@ -1,7 +1,7 @@
 
 
 
-
+<?php $__env->startSection('content'); ?>
 
 <style>
     body { background: #f4f6fa !important; }
@@ -92,6 +92,8 @@
         </div>
     </div>
 </div>
+<?php $__env->stopSection(); ?>
 
 
-<?php /**PATH C:\Users\Administrator\Documents\INVOICE_LARAVEL - PRODUÇÃO\backend-laravel10\resources\views/login.blade.php ENDPATH**/ ?>
+
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\Administrator\Documents\INVOICE_LARAVEL - PRODUÇÃO\backend-laravel10\resources\views/login.blade.php ENDPATH**/ ?>

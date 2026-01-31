@@ -43,6 +43,7 @@ class Movimentos extends Component
         'fonte_financiamento.required' => 'O campo Fonte de Financiamento é obrigatório.',
         'data_cadastro.required' => 'O campo Data de Cadastro é obrigatório.',
         'tipo.required' => 'O campo Tipo é obrigatório.',
+        'factura_id.required' => 'O campo Fatura é obrigatório.',
         'factura_id.exists' => 'A fatura selecionada não existe.',
     ];
     public $movimentos = [];
@@ -98,10 +99,7 @@ class Movimentos extends Component
     public function salvarMovimento()
     {
         // Corrigir: se factura_id for vazio, definir como null
-        if (empty($this->factura_id)) {
-            $this->factura_id = null;
-        }
-        $this->validate([
+        $rules = [
             'empresa' => 'required|string',
             'descricao' => 'required|string',
             'natureza_pagamento' => 'required|string',
@@ -109,8 +107,13 @@ class Movimentos extends Component
             'fonte_financiamento' => 'required|string',
             'data_cadastro' => 'required|date',
             'tipo' => 'required|in:entrada,saida',
-            'factura_id' => 'nullable|exists:facturas,id',
-        ], $this->messages);
+        ];
+        if ($this->tipo === 'saida') {
+            $rules['factura_id'] = 'required|exists:facturas,id';
+        } else {
+            $rules['factura_id'] = 'nullable';
+        }
+        $this->validate($rules, $this->messages);
 
         // Gerar número de ordem automaticamente
         $ultimo = Movimento::orderByDesc('numero_ordem')->first();

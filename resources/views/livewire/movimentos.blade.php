@@ -36,15 +36,15 @@
         {{-- Formulário de cadastro de movimento --}}
         <form wire:submit.prevent="salvarMovimento" class="row g-3 mb-4">
             <div class="col-md-2">
-                <input type="text" class="form-control" placeholder="Empresa" wire:model.defer="empresa">
+                <input type="text" class="form-control" placeholder="Empresa" wire:model.defer="empresa" required>
                 @error('empresa') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
             <div class="col-md-2">
-                <input type="text" class="form-control" placeholder="Descrição da Despesa" wire:model.defer="descricao">
+                <input type="text" class="form-control" placeholder="Descrição da Despesa" wire:model.defer="descricao" required>
                 @error('descricao') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
             <div class="col-md-2">
-                <select class="form-select" wire:model.defer="natureza_pagamento">
+                <select class="form-select" wire:model.defer="natureza_pagamento" required>
                     <option value="">Selecione</option>
                     <option value="Abono De Família Subsídios Do Pessoal Civil">Abono De Família Subsídios Do Pessoal Civil</option>
                     <option value="Aquisição De Mobiliário">Aquisição De Mobiliário</option>
@@ -77,11 +77,11 @@
                 @error('natureza_pagamento') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
             <div class="col-md-2">
-                <input type="number" step="0.01" class="form-control" placeholder="Valor (Kz)" wire:model.defer="valor">
+                <input type="number" step="0.01" class="form-control" placeholder="Valor (Kz)" wire:model.defer="valor" required>
                 @error('valor') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
             <div class="col-md-2">
-                <select class="form-select" wire:model.defer="fonte_financiamento">
+                <select class="form-select" wire:model.defer="fonte_financiamento" required>
                     <option value="">Selecione a Fonte</option>
                     <option value="RP">RP</option>
                     <option value="ROT">ROT</option>
@@ -89,18 +89,19 @@
                 @error('fonte_financiamento') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
             <div class="col-md-2">
-                <input type="datetime-local" class="form-control" wire:model.defer="data_cadastro">
+                <input type="datetime-local" class="form-control" wire:model.defer="data_cadastro" required>
                 @error('data_cadastro') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
             <div class="col-md-2">
-                <select class="form-select" wire:model.defer="tipo">
+                <select class="form-select" wire:model.defer="tipo" required>
                     <option value="entrada">Entrada</option>
                     <option value="saida">Saída</option>
                 </select>
                 @error('tipo') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
+            @if($tipo === 'saida')
             <div class="col-md-3">
-                <select class="form-select" wire:model.defer="factura_id">
+                <select class="form-select" wire:model.defer="factura_id" required>
                     <option value="">Selecione a Fatura</option>
                     @foreach ($facturas as $fatura)
                         <option value="{{ $fatura->id }}">{{ $fatura->numero_factura }} - {{ $fatura->empresa_nome }}</option>
@@ -108,6 +109,7 @@
                 </select>
                 @error('factura_id') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
+            @endif
             <div class="col-md-2">
                 <button type="submit" class="btn btn-primary w-100">
                     {{ $modoEdicao ? 'Atualizar' : 'Cadastrar' }}

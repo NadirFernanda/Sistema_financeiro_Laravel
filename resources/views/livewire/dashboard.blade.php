@@ -336,8 +336,8 @@
                     </span>
                     Faturas
                 </div>
-                <div class="card-value" style="color:#1877F2;font-size:2.3rem;font-weight:bold;">42</div>
-                <a href="#" class="card-link" style="color:#222;font-weight:500;font-size:1.05rem;text-decoration:none;">Mais informações &rarr;</a>
+                <div class="card-value" style="color:#1877F2;font-size:2.3rem;font-weight:bold;">{{ $totalFaturas }}</div>
+                <a href="{{ route('faturas') }}" class="card-link" style="color:#222;font-weight:500;font-size:1.05rem;text-decoration:none;">Mais informações &rarr;</a>
             </div>
             <div class="dashboard-card despesas" style="background:#f4faff;border:1.5px solid #1877F2;border-radius:16px;">
                 <div class="card-title" style="color:#1877F2;font-weight:bold;font-size:1.25rem;display:flex;align-items:center;gap:10px;">
@@ -346,8 +346,8 @@
                     </span>
                     Despesas
                 </div>
-                <div class="card-value" style="color:#1877F2;font-size:2.3rem;font-weight:bold;">28</div>
-                <a href="#" class="card-link" style="color:#222;font-weight:500;font-size:1.05rem;text-decoration:none;">Mais informações &rarr;</a>
+                <div class="card-value" style="color:#1877F2;font-size:2.3rem;font-weight:bold;">{{ $totalDespesas }}</div>
+                <a href="{{ route('movimentos') }}" class="card-link" style="color:#222;font-weight:500;font-size:1.05rem;text-decoration:none;">Mais informações &rarr;</a>
             </div>
             <div class="dashboard-card relatorios" style="background:#f4faff;border:1.5px solid #1877F2;border-radius:16px;">
                 <div class="card-title" style="color:#1877F2;font-weight:bold;font-size:1.25rem;display:flex;align-items:center;gap:10px;">
@@ -356,41 +356,11 @@
                     </span>
                     Relatórios
                 </div>
-                <div class="card-value" style="color:#1877F2;font-size:2.3rem;font-weight:bold;">12</div>
-                <a href="#" class="card-link" style="color:#222;font-weight:500;font-size:1.05rem;text-decoration:none;">Mais informações &rarr;</a>
+                <div class="card-value" style="color:#1877F2;font-size:2.3rem;font-weight:bold;">{{ $totalRelatorios }}</div>
+                <a href="{{ route('relatorios') }}" class="card-link" style="color:#222;font-weight:500;font-size:1.05rem;text-decoration:none;">Mais informações &rarr;</a>
             </div>
         </div>
         <div class="dashboard-cards" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
-            <div class="dashboard-card fluxo" style="background:#f4faff;border:1.5px solid #1877F2;border-radius:16px;">
-                <div class="card-title" style="color:#1877F2;font-weight:bold;font-size:1.25rem;display:flex;align-items:center;gap:10px;">
-                    <span class="icon" style="display:flex;align-items:center;">
-                        <i data-feather="credit-card" style="width:28px;height:28px;stroke:#42a5ff;"></i>
-                    </span>
-                    Fluxo de Caixa
-                </div>
-                <div class="card-value" style="color:#1877F2;font-size:2.3rem;font-weight:bold;">8</div>
-                <a href="#" class="card-link" style="color:#222;font-weight:500;font-size:1.05rem;text-decoration:none;">Mais informações &rarr;</a>
-            </div>
-            <div class="dashboard-card empresas" style="background:#f4faff;border:1.5px solid #1877F2;border-radius:16px;">
-                <div class="card-title" style="color:#1877F2;font-weight:bold;font-size:1.25rem;display:flex;align-items:center;gap:10px;">
-                    <span class="icon" style="display:flex;align-items:center;">
-                        <i data-feather="briefcase" style="width:28px;height:28px;stroke:#1877F2;"></i>
-                    </span>
-                    Empresas
-                </div>
-                <div class="card-value" style="color:#1877F2;font-size:2.3rem;font-weight:bold;">15</div>
-                <a href="#" class="card-link" style="color:#222;font-weight:500;font-size:1.05rem;text-decoration:none;">Mais informações &rarr;</a>
-            </div>
-            <div class="dashboard-card transacoes" style="background:#f4faff;border:1.5px solid #1877F2;border-radius:16px;">
-                <div class="card-title" style="color:#1877F2;font-weight:bold;font-size:1.25rem;display:flex;align-items:center;gap:10px;">
-                    <span class="icon" style="display:flex;align-items:center;">
-                        <i data-feather="repeat" style="width:28px;height:28px;stroke:#1877F2;"></i>
-                    </span>
-                    Transações
-                </div>
-                <div class="card-value" style="color:#1877F2;font-size:2.3rem;font-weight:bold;">54</div>
-                <a href="#" class="card-link" style="color:#222;font-weight:500;font-size:1.05rem;text-decoration:none;">Mais informações &rarr;</a>
-            </div>
         </div>
     </div>
 </div>

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 
 class Movimentos extends Component
+{
     // Garante que ao mudar para 'entrada', o campo factura_id é limpo
     public function updatedTipo($value)
     {
@@ -16,7 +17,6 @@ class Movimentos extends Component
             $this->factura_id = '';
         }
     }
-{
 
     public function getPodeEditarProperty()
     {

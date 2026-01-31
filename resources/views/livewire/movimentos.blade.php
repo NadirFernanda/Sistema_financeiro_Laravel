@@ -36,7 +36,7 @@
         {{-- Formulário de cadastro de movimento --}}
         <form wire:submit.prevent="salvarMovimento" class="row g-3 mb-4">
             <div class="col-md-2">
-                <input type="text" class="form-control" placeholder="Empresa" wire:model.defer="empresa" required>
+                <input type="text" class="form-control" placeholder="Empresa" wire:model.defer="empresa">
                 @error('empresa') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
             <div class="col-md-2">

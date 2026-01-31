@@ -1,13 +1,15 @@
 <?php
+
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\SetPasswordController;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+
 Route::get('/faturas/adicionar', function () {
     return view('fatura-adicionar');
 })->name('faturas.adicionar');
-use App\Http\Controllers\AuthController;
+
 Route::post('/login', [AuthController::class, 'login'])->name('login');
-
-use Illuminate\Support\Facades\Route;
-
-use Illuminate\Support\Facades\Auth;
 
 Route::get('/relatorios', function () {
     return view('relatorios');
@@ -16,6 +18,10 @@ Route::get('/relatorios', function () {
 Route::get('/faturas', function () {
     return view('faturas');
 })->name('faturas');
+
+// Rotas para definir senha (primeiro acesso / reset)
+Route::get('/definir-senha/{token}', [SetPasswordController::class, 'showForm'])->name('password.reset');
+Route::post('/definir-senha', [SetPasswordController::class, 'setPassword'])->name('password.update');
 
 Route::middleware('auth')->group(function () {
     Route::get('/usuarios', function () {

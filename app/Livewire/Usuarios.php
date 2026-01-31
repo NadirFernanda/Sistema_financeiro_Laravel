@@ -5,6 +5,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Usuario;
+use Illuminate\Support\Facades\Password;
 
 class Usuarios extends Component
 {
@@ -67,7 +68,14 @@ class Usuarios extends Component
         $this->successMessage = '';
         $this->errorMessage = '';
         $rules = $this->rules;
-        $rules['email'] .= '|unique:usuarios,email,' . $this->usuario_id;
+
+        // Em PostgreSQL, passar um ID vazio ('') para a regra unique com ignore causa erro de conversão.
+        // Por isso, só adicionamos o ID a ser ignorado quando estamos em modo edição.
+        if ($this->isEdit && $this->usuario_id) {
+            $rules['email'] .= '|unique:usuarios,email,' . $this->usuario_id;
+        } else {
+            $rules['email'] .= '|unique:usuarios,email';
+        }
         $validated = $this->validate($rules, $this->messages);
 
         try {
@@ -76,8 +84,16 @@ class Usuarios extends Component
                 $usuario->update($validated);
                 $this->successMessage = 'Usuário atualizado com sucesso!';
             } else {
-                Usuario::create($validated);
-                $this->successMessage = 'Usuário criado com sucesso!';
+                $usuario = Usuario::create($validated);
+
+                try {
+                    Password::broker('usuarios')->sendResetLink([
+                        'email' => $usuario->email,
+                    ]);
+                    $this->successMessage = 'Usuário criado com sucesso! Um e-mail foi enviado para definir a senha.';
+                } catch (\Exception $e) {
+                    $this->successMessage = 'Usuário criado com sucesso, mas houve um erro ao enviar o e-mail de definição de senha.';
+                }
             }
             $this->resetForm();
             $this->loadUsuarios();

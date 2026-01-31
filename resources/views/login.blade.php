@@ -1,7 +1,7 @@
 
+@extends('layouts.app')
 
-
-
+@section('content')
 
 <style>
     body { background: #f4f6fa !important; }
@@ -92,5 +92,6 @@
         </div>
     </div>
 </div>
+@endsection
 
 

@@ -8,6 +8,13 @@ class Dashboard extends Component
 {
     public function render()
     {
-        return view('livewire.dashboard');
+        $totalFaturas = \App\Models\Factura::count();
+        $totalDespesas = \App\Models\Movimento::where('tipo', 'saida')->count();
+        $totalRelatorios = \App\Models\Relatorio::count();
+        return view('livewire.dashboard', [
+            'totalFaturas' => $totalFaturas,
+            'totalDespesas' => $totalDespesas,
+            'totalRelatorios' => $totalRelatorios,
+        ]);
     }
 }

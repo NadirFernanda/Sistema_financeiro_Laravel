@@ -14,6 +14,7 @@ class Usuarios extends Component
     public $role;
     public $usuario_id;
     public $isEdit = false;
+    public $showForm = false;
     public $successMessage = '';
     public $errorMessage = '';
 
@@ -38,6 +39,12 @@ class Usuarios extends Component
         $this->loadUsuarios();
     }
 
+    public function create()
+    {
+        $this->resetForm();
+        $this->showForm = true;
+    }
+
     public function loadUsuarios()
     {
         $this->usuarios = Usuario::orderBy('id')->get();
@@ -50,6 +57,7 @@ class Usuarios extends Component
         $this->role = '';
         $this->usuario_id = null;
         $this->isEdit = false;
+        $this->showForm = false;
         $this->successMessage = '';
         $this->errorMessage = '';
     }

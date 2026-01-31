@@ -9,7 +9,7 @@ Route::get('/faturas/adicionar', function () {
     return view('fatura-adicionar');
 })->name('faturas.adicionar');
 
-Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
 
 Route::get('/relatorios', function () {
     return view('relatorios');

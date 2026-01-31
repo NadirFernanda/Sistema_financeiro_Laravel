@@ -99,9 +99,8 @@
                 </select>
                 @error('tipo') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
-            @if($tipo === 'saida')
             <div class="col-md-3">
-                <select class="form-select" wire:model.defer="factura_id" required>
+                <select class="form-select" wire:model.defer="factura_id">
                     <option value="">Selecione a Fatura</option>
                     @foreach ($facturas as $fatura)
                         <option value="{{ $fatura->id }}">{{ $fatura->numero_factura }} - {{ $fatura->empresa_nome }}</option>
@@ -109,7 +108,6 @@
                 </select>
                 @error('factura_id') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
-            @endif
             <div class="col-md-2">
                 <button type="submit" class="btn btn-primary w-100">
                     {{ $modoEdicao ? 'Atualizar' : 'Cadastrar' }}

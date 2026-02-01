@@ -8,8 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Collection;
+// Removidos imports não utilizados
 use DateTime;
 
 
@@ -115,12 +114,8 @@ class Relatorios extends Component
     }
     public function filtrarDespesasPorData()
     {
-        // DEBUG: Marcar visualmente que o método foi chamado
         $this->mensagemFiltro = '[DEBUG] Método filtrarDespesasPorData chamado em ' . now();
-        $this->validate([
-            'data_inicio_grafico' => 'required|date',
-            'data_fim_grafico' => 'required|date',
-        ]);
+        // Força formato Y-m-d antes de validar
         $inicio = $this->data_inicio_grafico;
         $fim = $this->data_fim_grafico;
         if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $inicio)) {
@@ -128,6 +123,15 @@ class Relatorios extends Component
         }
         if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $fim)) {
             $fim = DateTime::createFromFormat('d/m/Y', $fim)->format('Y-m-d');
+        }
+        // Validação robusta
+        $this->validate([
+            'data_inicio_grafico' => 'required|date_format:Y-m-d',
+            'data_fim_grafico' => 'required|date_format:Y-m-d',
+        ]);
+        if (strtotime($inicio) > strtotime($fim)) {
+            $this->mensagemFiltro = 'Data de início maior que a data final.';
+            return;
         }
         $whereInicio = $inicio . ' 00:00:00';
         $whereFim = $fim . ' 23:59:59';
@@ -141,15 +145,15 @@ class Relatorios extends Component
             return ($item->descricao ?? '') . ' - ' . ($item->natureza_pagamento ?? '') . ' - ' . ($item->data_cadastro ?? '');
         })->toArray();
         $valores = $naturezas->pluck('total')->map(fn($v) => (float)$v)->values()->toArray();
-        $this->naturezaLabels = is_array($labels) ? array_values($labels) : [];
-        $this->naturezaValores = is_array($valores) ? array_values($valores) : [];
-        if (empty($this->naturezaLabels) || empty($this->naturezaValores)) {
+        $this->naturezaLabels = $labels;
+        $this->naturezaValores = $valores;
+        if (empty($labels) || empty($valores)) {
             $this->mensagemFiltro = 'Sem dados para o período selecionado.';
         } else {
             $this->mensagemFiltro = '';
         }
-        // Dispara evento para o frontend (Livewire >=3.x)
-        $this->dispatch('atualizar-grafico-natureza-total', [
+        // Dispara evento para o frontend
+        $this->dispatchBrowserEvent('atualizar-grafico-natureza-total', [
             'labels' => $labels,
             'valores' => $valores,
             'mensagem' => $this->mensagemFiltro
@@ -318,7 +322,7 @@ class Relatorios extends Component
         }
 
         // Dispara evento para o frontend
-        $this->dispatch('atualizar-grafico-mes-corrente', [
+        $this->dispatchBrowserEvent('atualizar-grafico-mes-corrente', [
             'labels' => $labels,
             'valores' => $valores,
             'mensagem' => $this->mensagemFiltro
@@ -345,19 +349,54 @@ class Relatorios extends Component
             ->get();
     }
 
-    public function render()
-    {
-        return view('livewire.relatorios', [
-            'faturas' => $this->faturas,
-            'despesas' => $this->despesas,
-            'dividas' => $this->dividas,
-            'totalDividas' => $this->totalDividas,
-            'filtro' => $this->filtro,
-            'naturezaLabels' => $this->naturezaLabels,
-            'naturezaValores' => $this->naturezaValores,
-            'dividasNaturezaLabels' => $this->dividasNaturezaLabels,
-            'dividasNaturezaValores' => $this->dividasNaturezaValores,
-            'mensagemFiltro' => $this->mensagemFiltro
-        ])->with(['mensagemFiltro' => $this->mensagemFiltro]);
-    }
-}
+        // Força formato Y-m-d antes de validar
+        $inicio = $this->data_inicio_grafico;
+        $fim = $this->data_fim_grafico;
+        if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $inicio)) {
+            $inicio = DateTime::createFromFormat('d/m/Y', $inicio)->format('Y-m-d');
+        }
+        if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $fim)) {
+            $fim = DateTime::createFromFormat('d/m/Y', $fim)->format('Y-m-d');
+        }
+        // Validação robusta
+        $this->validate([
+            'data_inicio_grafico' => 'required|date_format:Y-m-d',
+            'data_fim_grafico' => 'required|date_format:Y-m-d',
+        ]);
+        if (strtotime($inicio) > strtotime($fim)) {
+            $this->mensagemFiltro = 'Data de início maior que a data final.';
+            return;
+        }
+        $whereInicio = $inicio . ' 00:00:00';
+        $whereFim = $fim . ' 23:59:59';
+        $movimentos = DB::table('movimentos')
+            ->whereBetween('data_cadastro', [$whereInicio, $whereFim])
+            ->select(DB::raw('DATE(data_cadastro) as dia'), DB::raw('SUM(valor) as total'))
+            ->groupBy(DB::raw('DATE(data_cadastro)'))
+            ->orderBy(DB::raw('DATE(data_cadastro)'))
+            ->get()
+            ->keyBy('dia');
+        $labels = [];
+        $valores = [];
+        $periodo = new \DatePeriod(
+            new \DateTime($inicio),
+            new \DateInterval('P1D'),
+            (new \DateTime($fim))->modify('+1 day')
+        );
+        foreach ($periodo as $dia) {
+            $diaFormat = $dia->format('Y-m-d');
+            $labels[] = $dia->format('d/m');
+            $valores[] = isset($movimentos[$diaFormat]) ? (float)$movimentos[$diaFormat]->total : 0;
+        }
+        $this->mesCorrenteLabels = $labels;
+        $this->mesCorrenteValores = $valores;
+        if (empty($valores) || array_sum($valores) == 0) {
+            $this->mensagemFiltro = 'Sem dados para o período selecionado.';
+        } else {
+            $this->mensagemFiltro = '';
+        }
+        $this->dispatchBrowserEvent('atualizar-grafico-mes-corrente', [
+            'labels' => $labels,
+            'valores' => $valores,
+            'mensagem' => $this->mensagemFiltro
+        ]);

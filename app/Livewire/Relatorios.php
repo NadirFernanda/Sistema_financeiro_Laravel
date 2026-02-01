@@ -48,14 +48,8 @@ class Relatorios extends Component
 
         $row = 2;
         $dividas = $this->dividas instanceof \Illuminate\Support\Collection ? $this->dividas->toArray() : $this->dividas;
-        // Se for array aninhado, "achatar"
-        if (is_array($dividas) && isset($dividas[0]) && is_array($dividas[0])) {
-            $dividas = array_merge(...array_filter($dividas, 'is_array'));
-        }
         foreach ($dividas as $d) {
-            if (is_array($d)) {
-                $d = (object)$d;
-            }
+            $d = (object)$d;
             $sheet->fromArray([
                 $d->numero_factura ?? '',
                 $d->empresa_nome ?? '',
@@ -79,7 +73,13 @@ class Relatorios extends Component
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
         $fileName = 'dividas.xlsx';
         $temp_file = tempnam(sys_get_temp_dir(), 'dividas_');
-        $writer->save($temp_file);
+        try {
+            $writer->save($temp_file);
+        } catch (\Exception $e) {
+            Log::error('Erro ao gerar Excel de dívidas: ' . $e->getMessage());
+            $this->mensagemFiltro = 'Erro ao gerar arquivo Excel.';
+            return;
+        }
 
         return response()->download($temp_file, $fileName)->deleteFileAfterSend(true);
     }
@@ -118,10 +118,12 @@ class Relatorios extends Component
         $inicio = $this->data_inicio_grafico;
         $fim = $this->data_fim_grafico;
         if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $inicio)) {
-            $inicio = DateTime::createFromFormat('d/m/Y', $inicio)->format('Y-m-d');
+            $dtInicio = DateTime::createFromFormat('d/m/Y', $inicio);
+            $inicio = $dtInicio ? $dtInicio->format('Y-m-d') : $inicio;
         }
         if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $fim)) {
-            $fim = DateTime::createFromFormat('d/m/Y', $fim)->format('Y-m-d');
+            $dtFim = DateTime::createFromFormat('d/m/Y', $fim);
+            $fim = $dtFim ? $dtFim->format('Y-m-d') : $fim;
         }
         // Validação robusta
         $this->validate([
@@ -173,15 +175,8 @@ class Relatorios extends Component
         $row = 2;
         // Corrigir para lidar com arrays aninhados e ausência de id
         $faturas = $this->faturas instanceof \Illuminate\Support\Collection ? $this->faturas->toArray() : $this->faturas;
-        // Se for array aninhado, "achatar"
-        if (is_array($faturas) && isset($faturas[0]) && is_array($faturas[0])) {
-            $faturas = array_merge(...array_filter($faturas, 'is_array'));
-        }
         foreach ($faturas as $f) {
-            // Se for array, converter para objeto
-            if (is_array($f)) {
-                $f = (object)$f;
-            }
+            $f = (object)$f;
             $sheet->fromArray([
                 $f->id ?? '',
                 $f->numero_factura ?? '',
@@ -205,7 +200,13 @@ class Relatorios extends Component
         $writer = new Xlsx($spreadsheet);
         $fileName = 'faturas.xlsx';
         $temp_file = tempnam(sys_get_temp_dir(), 'faturas_');
-        $writer->save($temp_file);
+        try {
+            $writer->save($temp_file);
+        } catch (\Exception $e) {
+            Log::error('Erro ao gerar Excel de faturas: ' . $e->getMessage());
+            $this->mensagemFiltro = 'Erro ao gerar arquivo Excel.';
+            return;
+        }
 
         return response()->download($temp_file, $fileName)->deleteFileAfterSend(true);
     }
@@ -268,10 +269,12 @@ class Relatorios extends Component
 
         // Padroniza datas para Y-m-d antes de validar
         if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $this->data_inicio_grafico)) {
-            $this->data_inicio_grafico = DateTime::createFromFormat('d/m/Y', $this->data_inicio_grafico)->format('Y-m-d');
+            $dtInicio = DateTime::createFromFormat('d/m/Y', $this->data_inicio_grafico);
+            $this->data_inicio_grafico = $dtInicio ? $dtInicio->format('Y-m-d') : $this->data_inicio_grafico;
         }
         if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $this->data_fim_grafico)) {
-            $this->data_fim_grafico = DateTime::createFromFormat('d/m/Y', $this->data_fim_grafico)->format('Y-m-d');
+            $dtFim = DateTime::createFromFormat('d/m/Y', $this->data_fim_grafico);
+            $this->data_fim_grafico = $dtFim ? $dtFim->format('Y-m-d') : $this->data_fim_grafico;
         }
         $this->validate([
             'data_inicio_grafico' => 'required|date',
@@ -335,12 +338,10 @@ class Relatorios extends Component
     public function filtrarPorData()
     {
         // Padroniza datas para Y-m-d antes de validar
-        $this->data_inicio_grafico = DateTime::createFromFormat('d/m/Y', $this->data_inicio_grafico)
-            ? DateTime::createFromFormat('d/m/Y', $this->data_inicio_grafico)->format('Y-m-d')
-            : $this->data_inicio_grafico;
-        $this->data_fim_grafico = DateTime::createFromFormat('d/m/Y', $this->data_fim_grafico)
-            ? DateTime::createFromFormat('d/m/Y', $this->data_fim_grafico)->format('Y-m-d')
-            : $this->data_fim_grafico;
+        $dtInicio = DateTime::createFromFormat('d/m/Y', $this->data_inicio_grafico);
+        $this->data_inicio_grafico = $dtInicio ? $dtInicio->format('Y-m-d') : $this->data_inicio_grafico;
+        $dtFim = DateTime::createFromFormat('d/m/Y', $this->data_fim_grafico);
+        $this->data_fim_grafico = $dtFim ? $dtFim->format('Y-m-d') : $this->data_fim_grafico;
         $this->validate([
             'data_inicio_grafico' => 'required|date_format:Y-m-d',
             'data_fim_grafico' => 'required|date_format:Y-m-d',

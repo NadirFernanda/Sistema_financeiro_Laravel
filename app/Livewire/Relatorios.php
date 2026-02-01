@@ -154,7 +154,7 @@ class Relatorios extends Component
             $this->mensagemFiltro = '';
         }
         // Dispara evento para o frontend
-        $this->dispatchBrowserEvent('atualizar-grafico-natureza-total', [
+        $this->dispatch('atualizar-grafico-natureza-total', [
             'labels' => $labels,
             'valores' => $valores,
             'mensagem' => $this->mensagemFiltro
@@ -323,7 +323,7 @@ class Relatorios extends Component
         }
 
         // Dispara evento para o frontend
-        $this->dispatchBrowserEvent('atualizar-grafico-mes-corrente', [
+        $this->dispatch('atualizar-grafico-mes-corrente', [
             'labels' => $labels,
             'valores' => $valores,
             'mensagem' => $this->mensagemFiltro

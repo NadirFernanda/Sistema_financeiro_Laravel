@@ -4,16 +4,31 @@
 			← Voltar ao Dashboard
 		</a>
 	</div>
-	<!-- Gráfico de Despesas do Mês Corrente -->
-	<div style="width:100%;background:#fff;border-radius:18px;margin-bottom:24px;padding:32px 18px 24px 18px;box-shadow:0 2px 16px rgba(24,119,242,0.07);">
-		<h2 style="color:#0074D9;font-size:2.1rem;font-weight:700;margin-bottom:8px;text-align:left;">Gráfico de Despesas do Mês Corrente</h2>
-		<h3 style="color:#1877F2;font-size:1.2rem;font-weight:700;margin-bottom:18px;text-align:left;">Despesas por Natureza ({{ now()->format('m/Y') }})</h3>
-		<div style="width:100%;min-height:220px;background:#f4f6fa;border-radius:16px;margin-bottom:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-			<canvas id="graficoMesCorrente" style="max-width:900px;width:100%;height:220px;"></canvas>
-			<div id="debugGraficoMesCorrente" style="margin-top:12px;color:#e65c1a;font-size:0.98rem;background:#fffbe6;padding:8px 16px;border-radius:8px;max-width:900px;width:100%;word-break:break-all;display:none;"></div>
-		</div>
-		<button id="btnDownloadGraficoMesCorrente" class="btn" style="background:#00bfff;color:#fff;font-weight:600;font-size:1.08rem;border-radius:22px;padding:6px 24px;box-shadow:0 1px 6px rgba(24,119,242,0.10);margin-bottom:10px;align-self:flex-end;" onclick="baixarGraficoMesCorrente()">Baixar Gráfico (PNG)</button>
-	</div>
+	   <!-- Gráfico de Despesas do Mês Corrente (com filtro de período) -->
+	   <div style="width:100%;background:#fff;border-radius:18px;margin-bottom:24px;padding:32px 18px 24px 18px;box-shadow:0 2px 16px rgba(24,119,242,0.07);">
+		   <h2 style="color:#0074D9;font-size:2.1rem;font-weight:700;margin-bottom:8px;text-align:left;">Gráfico de Despesas por Dia</h2>
+		   <div style="display:flex;gap:12px;align-items:center;margin-bottom:18px;">
+			   <label for="mesFiltro" style="font-weight:600;">Mês:</label>
+			   <select id="mesFiltro" wire:model="mesFiltro" style="padding:4px 10px;border-radius:8px;border:1px solid #ccc;">
+				   @for ($m = 1; $m <= 12; $m++)
+					   <option value="{{ $m }}" @if($m == $mesFiltro) selected @endif>{{ sprintf('%02d', $m) }}</option>
+				   @endfor
+			   </select>
+			   <label for="anoFiltro" style="font-weight:600;">Ano:</label>
+			   <select id="anoFiltro" wire:model="anoFiltro" style="padding:4px 10px;border-radius:8px;border:1px solid #ccc;">
+				   @for ($a = date('Y')-3; $a <= date('Y')+1; $a++)
+					   <option value="{{ $a }}" @if($a == $anoFiltro) selected @endif>{{ $a }}</option>
+				   @endfor
+			   </select>
+			   <button wire:click="filtrarGraficoMesCorrente" class="btn" style="background:#1877F2;color:#fff;font-weight:600;padding:4px 18px;border-radius:8px;">Filtrar</button>
+		   </div>
+		   <h3 style="color:#1877F2;font-size:1.2rem;font-weight:700;margin-bottom:18px;text-align:left;">Despesas por Dia ({{ sprintf('%02d', $mesFiltro) }}/{{ $anoFiltro }})</h3>
+		   <div style="width:100%;min-height:220px;background:#f4f6fa;border-radius:16px;margin-bottom:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+			   <canvas id="graficoMesCorrente" style="max-width:900px;width:100%;height:220px;"></canvas>
+			   <div id="debugGraficoMesCorrente" style="margin-top:12px;color:#e65c1a;font-size:0.98rem;background:#fffbe6;padding:8px 16px;border-radius:8px;max-width:900px;width:100%;word-break:break-all;display:none;"></div>
+		   </div>
+		   <button id="btnDownloadGraficoMesCorrente" class="btn" style="background:#00bfff;color:#fff;font-weight:600;font-size:1.08rem;border-radius:22px;padding:6px 24px;box-shadow:0 1px 6px rgba(24,119,242,0.10);margin-bottom:10px;align-self:flex-end;" onclick="baixarGraficoMesCorrente()">Baixar Gráfico (PNG)</button>
+	   </div>
 	<!-- Chart.js deve ser carregado antes de qualquer uso -->
 	   <script src="/js/chart.umd.js"></script>
 

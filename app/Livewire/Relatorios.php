@@ -1,3 +1,6 @@
+    // Filtros para o gráfico de despesas por dia
+    public $mesFiltro;
+    public $anoFiltro;
 <?php
 
 namespace App\Livewire;
@@ -207,6 +210,8 @@ class Relatorios extends Component
 
     public function mount()
     {
+        $this->mesFiltro = now()->month;
+        $this->anoFiltro = now()->year;
         $this->carregarResumo();
     }
 
@@ -258,9 +263,11 @@ class Relatorios extends Component
         })->toArray();
         $this->naturezaValores = $naturezas->pluck('total')->toArray();
 
-        // Gráfico do mês corrente: despesas por dia
-        $inicioMes = now()->startOfMonth()->format('Y-m-d 00:00:00');
-        $fimMes = now()->endOfMonth()->format('Y-m-d 23:59:59');
+        // Gráfico de despesas por dia do mês filtrado
+        $mes = $this->mesFiltro ?? now()->month;
+        $ano = $this->anoFiltro ?? now()->year;
+        $inicioMes = date('Y-m-01 00:00:00', strtotime($ano.'-'.$mes.'-01'));
+        $fimMes = date('Y-m-t 23:59:59', strtotime($ano.'-'.$mes.'-01'));
         $movimentosMes = DB::table('movimentos')
             ->whereBetween('data_cadastro', [$inicioMes, $fimMes])
             ->select(DB::raw('DATE(data_cadastro) as dia'), DB::raw('SUM(valor) as total'))
@@ -272,6 +279,11 @@ class Relatorios extends Component
         })->toArray();
         $this->mesCorrenteValores = $movimentosMes->pluck('total')->toArray();
         Log::info('Fim carregarResumo');
+    }
+
+    public function filtrarGraficoMesCorrente()
+    {
+        $this->carregarResumo();
     }
 
     public function filtrarPorData()

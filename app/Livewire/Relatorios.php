@@ -1,6 +1,4 @@
-    // Filtros para o gráfico de despesas por dia
-    public $mesFiltro;
-    public $anoFiltro;
+
 <?php
 
 namespace App\Livewire;

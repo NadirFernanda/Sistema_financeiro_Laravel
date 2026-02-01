@@ -263,12 +263,12 @@ class Relatorios extends Component
         $fimMes = now()->endOfMonth()->format('Y-m-d 23:59:59');
         $movimentosMes = DB::table('movimentos')
             ->whereBetween('data_cadastro', [$inicioMes, $fimMes])
-            ->select('descricao', 'natureza_pagamento', DB::raw('DATE(data_cadastro) as dia'), DB::raw('SUM(valor) as total'))
-            ->groupBy('descricao', 'natureza_pagamento', DB::raw('DATE(data_cadastro)'))
+            ->select(DB::raw('DATE(data_cadastro) as dia'), DB::raw('SUM(valor) as total'))
+            ->groupBy(DB::raw('DATE(data_cadastro)'))
             ->orderBy(DB::raw('DATE(data_cadastro)'))
             ->get();
         $this->mesCorrenteLabels = $movimentosMes->map(function($item) {
-            return ($item->descricao ?? '') . ' - ' . ($item->natureza_pagamento ?? '') . ' - ' . ($item->dia ?? '');
+            return $item->dia;
         })->toArray();
         $this->mesCorrenteValores = $movimentosMes->pluck('total')->toArray();
         Log::info('Fim carregarResumo');

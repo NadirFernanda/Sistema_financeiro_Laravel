@@ -231,7 +231,27 @@
 											<canvas id="graficoDividasNatureza" style="max-width:900px;width:100%;height:220px;"></canvas>
 											<div id="debugGraficoDividasNatureza" style="margin-top:12px;color:#e65c1a;font-size:0.98rem;background:#fffbe6;padding:8px 16px;border-radius:8px;max-width:900px;width:100%;word-break:break-all;display:none;"></div>
 										</div>
+										<button id="btnDownloadGraficoDividasNatureza" class="btn" style="background:#e65c1a;color:#fff;font-weight:600;font-size:1.08rem;border-radius:22px;padding:6px 24px;box-shadow:0 1px 6px rgba(24,119,242,0.10);margin-bottom:10px;align-self:flex-end;" onclick="baixarGraficoDividasNatureza()">Baixar Gráfico (PNG)</button>
 									</div>
+				</div>
+				<script>
+				function baixarGraficoDividasNatureza() {
+					const canvas = document.getElementById('graficoDividasNatureza');
+					if (!canvas) return;
+					// Cria um canvas temporário com fundo branco
+					const tmpCanvas = document.createElement('canvas');
+					tmpCanvas.width = canvas.width;
+					tmpCanvas.height = canvas.height;
+					const ctx = tmpCanvas.getContext('2d');
+					ctx.fillStyle = '#fff';
+					ctx.fillRect(0, 0, tmpCanvas.width, tmpCanvas.height);
+					ctx.drawImage(canvas, 0, 0);
+					const link = document.createElement('a');
+					link.href = tmpCanvas.toDataURL('image/png');
+					link.download = 'grafico_dividas_natureza.png';
+					link.click();
+				}
+				</script>
 				</div>
 				<script>
 				document.addEventListener('DOMContentLoaded', function() {

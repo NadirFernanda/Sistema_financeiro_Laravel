@@ -1,5 +1,3 @@
-
-
 <?php
 use App\Http\Controllers\AprovacaoController;
 use App\Http\Controllers\ContratacaoController;

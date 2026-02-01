@@ -85,6 +85,7 @@ class Relatorios extends Component
 
         return response()->download($temp_file, $fileName)->deleteFileAfterSend(true);
     }
+    // ... todos os outros métodos permanecem dentro da classe
 
     /**
      * Filtra as faturas pelo status recebido (ex: 'pendente', 'parcial', 'pagas', etc)
@@ -336,67 +337,24 @@ class Relatorios extends Component
 
     public function filtrarPorData()
     {
+        // Padroniza datas para Y-m-d antes de validar
+        $this->data_inicio_grafico = DateTime::createFromFormat('d/m/Y', $this->data_inicio_grafico)
+            ? DateTime::createFromFormat('d/m/Y', $this->data_inicio_grafico)->format('Y-m-d')
+            : $this->data_inicio_grafico;
+        $this->data_fim_grafico = DateTime::createFromFormat('d/m/Y', $this->data_fim_grafico)
+            ? DateTime::createFromFormat('d/m/Y', $this->data_fim_grafico)->format('Y-m-d')
+            : $this->data_fim_grafico;
         $this->validate([
-            'data_inicio' => 'required|date',
-            'data_fim' => 'required|date',
+            'data_inicio_grafico' => 'required|date_format:Y-m-d',
+            'data_fim_grafico' => 'required|date_format:Y-m-d',
         ]);
         $this->faturas = DB::table('facturas')
             ->select('*', DB::raw(
                 "CASE WHEN status = 'reprovada' THEN 'rejeitada' ELSE COALESCE(status, 'pendente') END as status"
             ))
-            ->whereBetween('created_at', [$this->data_inicio, $this->data_fim])
+            ->whereBetween('created_at', [$this->data_inicio_grafico, $this->data_fim_grafico])
             ->orderByDesc('created_at')
             ->get();
     }
+} // fecha a classe Relatorios
 
-        // Força formato Y-m-d antes de validar
-        $inicio = $this->data_inicio_grafico;
-        $fim = $this->data_fim_grafico;
-        if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $inicio)) {
-            $inicio = DateTime::createFromFormat('d/m/Y', $inicio)->format('Y-m-d');
-        }
-        if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $fim)) {
-            $fim = DateTime::createFromFormat('d/m/Y', $fim)->format('Y-m-d');
-        }
-        // Validação robusta
-        $this->validate([
-            'data_inicio_grafico' => 'required|date_format:Y-m-d',
-            'data_fim_grafico' => 'required|date_format:Y-m-d',
-        ]);
-        if (strtotime($inicio) > strtotime($fim)) {
-            $this->mensagemFiltro = 'Data de início maior que a data final.';
-            return;
-        }
-        $whereInicio = $inicio . ' 00:00:00';
-        $whereFim = $fim . ' 23:59:59';
-        $movimentos = DB::table('movimentos')
-            ->whereBetween('data_cadastro', [$whereInicio, $whereFim])
-            ->select(DB::raw('DATE(data_cadastro) as dia'), DB::raw('SUM(valor) as total'))
-            ->groupBy(DB::raw('DATE(data_cadastro)'))
-            ->orderBy(DB::raw('DATE(data_cadastro)'))
-            ->get()
-            ->keyBy('dia');
-        $labels = [];
-        $valores = [];
-        $periodo = new \DatePeriod(
-            new \DateTime($inicio),
-            new \DateInterval('P1D'),
-            (new \DateTime($fim))->modify('+1 day')
-        );
-        foreach ($periodo as $dia) {
-            $diaFormat = $dia->format('Y-m-d');
-            $labels[] = $dia->format('d/m');
-            $valores[] = isset($movimentos[$diaFormat]) ? (float)$movimentos[$diaFormat]->total : 0;
-        }
-        $this->mesCorrenteLabels = $labels;
-        $this->mesCorrenteValores = $valores;
-        if (empty($valores) || array_sum($valores) == 0) {
-            $this->mensagemFiltro = 'Sem dados para o período selecionado.';
-        } else {
-            $this->mensagemFiltro = '';
-        }
-        $this->dispatchBrowserEvent('atualizar-grafico-mes-corrente', [
-            'labels' => $labels,
-            'valores' => $valores,
-            'mensagem' => $this->mensagemFiltro
-        ]);

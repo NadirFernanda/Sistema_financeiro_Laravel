@@ -21,6 +21,8 @@ class Relatorios extends Component
     public $mesCorrenteValores = [];
     public $data_inicio_grafico;
     public $data_fim_grafico;
+    public $mesFiltro;
+    public $anoFiltro;
     public $filtro = 'todos';
     public $faturas = [];
     public $despesas = [];
@@ -205,6 +207,8 @@ class Relatorios extends Component
     {
         $this->data_inicio_grafico = now()->startOfMonth()->format('Y-m-d');
         $this->data_fim_grafico = now()->endOfMonth()->format('Y-m-d');
+        $this->mesFiltro = (int) now()->format('m');
+        $this->anoFiltro = (int) now()->format('Y');
         $this->carregarResumo();
     }
 

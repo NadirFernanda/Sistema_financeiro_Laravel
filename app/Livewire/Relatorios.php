@@ -47,7 +47,7 @@ class Relatorios extends Component
         $sheet->fromArray($headers, null, 'A1');
 
         $row = 2;
-        $dividas = $this->dividas;
+        $dividas = $this->dividas instanceof \Illuminate\Support\Collection ? $this->dividas->toArray() : $this->dividas;
         // Se for array aninhado, "achatar"
         if (is_array($dividas) && isset($dividas[0]) && is_array($dividas[0])) {
             $dividas = array_merge(...array_filter($dividas, 'is_array'));
@@ -78,7 +78,7 @@ class Relatorios extends Component
 
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
         $fileName = 'dividas.xlsx';
-        $temp_file = tempnam(sys_get_temp_dir(), $fileName);
+        $temp_file = tempnam(sys_get_temp_dir(), 'dividas_');
         $writer->save($temp_file);
 
         return response()->download($temp_file, $fileName)->deleteFileAfterSend(true);
@@ -105,7 +105,7 @@ class Relatorios extends Component
                     DB::raw("COALESCE(status, 'pendente') as status"),
                     DB::raw('(COALESCE(valor_total,0) - COALESCE(valor_pago,0)) as valor_pendente')
                 )
-                ->where(DB::raw('LOWER(COALESCE(status,\'pendente\'))'), strtolower($filtro))
+                ->whereRaw("LOWER(COALESCE(status,'pendente')) = ?", [strtolower($filtro)])
                 ->orderByDesc('created_at')
                 ->get();
         }
@@ -152,7 +152,7 @@ class Relatorios extends Component
             $this->mensagemFiltro = '';
         }
         // Dispara evento para o frontend
-        $this->dispatch('atualizar-grafico-natureza-total', [
+        $this->dispatchBrowserEvent('atualizar-grafico-natureza-total', [
             'labels' => $labels,
             'valores' => $valores,
             'mensagem' => $this->mensagemFiltro
@@ -172,7 +172,7 @@ class Relatorios extends Component
 
         $row = 2;
         // Corrigir para lidar com arrays aninhados e ausência de id
-        $faturas = $this->faturas;
+        $faturas = $this->faturas instanceof \Illuminate\Support\Collection ? $this->faturas->toArray() : $this->faturas;
         // Se for array aninhado, "achatar"
         if (is_array($faturas) && isset($faturas[0]) && is_array($faturas[0])) {
             $faturas = array_merge(...array_filter($faturas, 'is_array'));
@@ -204,7 +204,7 @@ class Relatorios extends Component
 
         $writer = new Xlsx($spreadsheet);
         $fileName = 'faturas.xlsx';
-        $temp_file = tempnam(sys_get_temp_dir(), $fileName);
+        $temp_file = tempnam(sys_get_temp_dir(), 'faturas_');
         $writer->save($temp_file);
 
         return response()->download($temp_file, $fileName)->deleteFileAfterSend(true);
@@ -235,7 +235,7 @@ class Relatorios extends Component
                 DB::raw("COALESCE(status, 'pendente') as status"),
                 DB::raw('(COALESCE(valor_total,0) - COALESCE(valor_pago,0)) as valor_pendente')
             )
-            ->whereIn(DB::raw("LOWER(COALESCE(status, 'pendente'))"), ['pendente', 'parcial'])
+            ->whereRaw("LOWER(COALESCE(status, 'pendente')) IN ('pendente','parcial')")
             ->orderByDesc('created_at')
             ->get();
         $this->totalDividas = $this->dividas->sum(function($f) {
@@ -265,22 +265,21 @@ class Relatorios extends Component
      */
     public function atualizarGraficoDespesas()
     {
-        // Valida se datas foram fornecidas
+
+        // Padroniza datas para Y-m-d antes de validar
+        if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $this->data_inicio_grafico)) {
+            $this->data_inicio_grafico = DateTime::createFromFormat('d/m/Y', $this->data_inicio_grafico)->format('Y-m-d');
+        }
+        if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $this->data_fim_grafico)) {
+            $this->data_fim_grafico = DateTime::createFromFormat('d/m/Y', $this->data_fim_grafico)->format('Y-m-d');
+        }
         $this->validate([
             'data_inicio_grafico' => 'required|date',
             'data_fim_grafico' => 'required|date',
         ]);
 
-        // Formata datas para Y-m-d
         $inicio = $this->data_inicio_grafico;
         $fim = $this->data_fim_grafico;
-
-        if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $inicio)) {
-            $inicio = DateTime::createFromFormat('d/m/Y', $inicio)->format('Y-m-d');
-        }
-        if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $fim)) {
-            $fim = DateTime::createFromFormat('d/m/Y', $fim)->format('Y-m-d');
-        }
 
         $whereInicio = $inicio . ' 00:00:00';
         $whereFim = $fim . ' 23:59:59';
@@ -321,7 +320,7 @@ class Relatorios extends Component
         }
 
         // Dispara evento para o frontend
-        $this->dispatch('atualizar-grafico-mes-corrente', [
+        $this->dispatchBrowserEvent('atualizar-grafico-mes-corrente', [
             'labels' => $labels,
             'valores' => $valores,
             'mensagem' => $this->mensagemFiltro

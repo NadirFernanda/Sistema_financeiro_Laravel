@@ -29,6 +29,7 @@ class Relatorios extends Component
     public $dividas = [];
     public $totalDividas = 0;
     public $modalAdicionarUsuario = false;
+    public $debugGraficoMesCorrente = [];
 
     // ========================= EXPORTAÇÃO EXCEL =========================
 
@@ -304,6 +305,16 @@ class Relatorios extends Component
 
         $labels = $movimentos->map(fn($m) => $m->natureza_pagamento ?? 'Sem natureza')->toArray();
         $valores = $movimentos->pluck('total')->map(fn($v) => (float) $v)->toArray();
+
+        $this->debugGraficoMesCorrente = [
+            'inicio' => $inicio,
+            'fim' => $fim,
+            'qtd_movimentos' => $movimentos->count(),
+            'labels' => $labels,
+            'valores' => $valores,
+        ];
+
+        Log::info('DEBUG_GRAFICO_DESPESAS', $this->debugGraficoMesCorrente);
 
         $this->mesCorrenteLabels = $labels;
         $this->mesCorrenteValores = $valores;

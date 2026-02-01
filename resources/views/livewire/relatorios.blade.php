@@ -232,6 +232,7 @@
 									<th style="padding:12px 10px;font-weight:700;min-width:90px;">Nº Factura</th>
 									<th style="padding:12px 10px;font-weight:700;min-width:120px;">Empresa</th>
 									<th style="padding:12px 10px;font-weight:700;min-width:120px;">Tipo de Serviço</th>
+									<th style="padding:12px 10px;font-weight:700;min-width:120px;">Natureza</th>
 									<th style="padding:12px 10px;font-weight:700;min-width:110px;">Valor Pendente</th>
 									<th style="padding:12px 10px;font-weight:700;min-width:80px;">Status</th>
 								</tr>
@@ -239,13 +240,14 @@
 							<tbody>
 								@if(isset($dividas) && count($dividas))
 						@foreach($dividas as $f)
-							<tr>
-								<td>{{ $f->numero_factura ?? $f->id }}</td>
-								<td>{{ $f->empresa_nome ?? '' }}</td>
-								<td>{{ $f->tipo_servico ?? '' }}</td>
-								<td>{{ number_format($f->valor_pendente ?? 0, 2, ',', '.') }}</td>
-								<td>{{ ucfirst($f->status ?? '') }}</td>
-							</tr>
+						<tr>
+						<td>{{ $f->numero_factura ?? $f->id }}</td>
+						<td>{{ $f->empresa_nome ?? '' }}</td>
+						<td>{{ $f->tipo_servico ?? '' }}</td>
+						<td>{{ $f->natureza ?? '' }}</td>
+						<td>{{ number_format($f->valor_pendente ?? 0, 2, ',', '.') }}</td>
+						<td>{{ ucfirst($f->status ?? '') }}</td>
+						</tr>
 						@endforeach
 						<!-- Linha do total -->
 						<tr style="background:#f4f6fa;font-weight:700;">

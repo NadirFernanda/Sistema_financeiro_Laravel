@@ -435,12 +435,12 @@
 				}
 				ctx.clearRect(0, 0, canvasMes.width, canvasMes.height);
 
-				// Sem dados: mostra mensagem elegante
+				// Sem dados: mostra mensagem bem visível
 				if (!Array.isArray(labels) || labels.length === 0 || !Array.isArray(valores) || valores.length === 0) {
 					ctx.save();
 					ctx.clearRect(0, 0, canvasMes.width, canvasMes.height);
-					ctx.font = '16px "Segoe UI", Arial';
-					ctx.fillStyle = '#9ca3af';
+					ctx.font = '18px "Segoe UI", Arial';
+					ctx.fillStyle = '#e65c1a';
 					ctx.textAlign = 'center';
 					ctx.fillText('Nenhum dado disponível para o período selecionado.', canvasMes.width / 2, canvasMes.height / 2);
 					ctx.restore();
@@ -448,32 +448,27 @@
 				}
 
 				const valoresNumericos = Array.isArray(valores) ? valores.map(v => Number(v)) : [];
-				const gradient = ctx.createLinearGradient(0, 0, 0, canvasMes.height);
-				gradient.addColorStop(0, '#4facfe');
-				gradient.addColorStop(1, '#00f2fe');
+				console.log('Render gráfico despesas - naturezas:', labels, 'valores:', valoresNumericos);
 
-				mesCorrenteChartInstance = new Chart(ctx, {
+				// Usar configuração semelhante ao gráfico de dívidas (já testado), mas vertical
+				mesCorrenteChartInstance = new Chart(canvasMes.getContext('2d'), {
 					type: 'bar',
 					data: {
 						labels: labels,
 						datasets: [{
 							label: 'Total por Natureza (Kz)',
 							data: valoresNumericos,
-							backgroundColor: gradient,
+							backgroundColor: '#4facfe',
 							borderRadius: 10,
-							maxBarThickness: 40,
+							barThickness: 38,
 							hoverBackgroundColor: '#1877F2'
 						}]
 					},
 					options: {
 						indexAxis: 'x',
 						responsive: true,
-						maintainAspectRatio: false,
-						layout: { padding: 12 },
 						plugins: {
-							legend: {
-								display: false
-							},
+							legend: { display: false },
 							tooltip: {
 								callbacks: {
 									label: function(context) {
@@ -485,6 +480,7 @@
 						},
 						scales: {
 							x: {
+								beginAtZero: true,
 								grid: { color: '#eef2f7' },
 								ticks: { color: '#4b5563', font: { size: 12 } }
 							},

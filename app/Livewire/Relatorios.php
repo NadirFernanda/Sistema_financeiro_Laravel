@@ -15,6 +15,9 @@ use DateTime;
 
 
 class Relatorios extends Component
+    // Filtros para o gráfico de despesas por dia
+    public $mesFiltro;
+    public $anoFiltro;
 {
     // Gráfico de dívidas por natureza
     public $dividasNaturezaLabels = [];

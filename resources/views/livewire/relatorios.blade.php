@@ -25,11 +25,6 @@
         <h3 style="color:#1877F2;font-size:1.2rem;font-weight:700;margin-bottom:18px;text-align:left;">Despesas por Natureza no período selecionado</h3>
         <div style="width:100%;min-height:220px;background:#f4f6fa;border-radius:16px;margin-bottom:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
             <canvas id="graficoMesCorrente" style="max-width:900px;width:100%;height:220px;"></canvas>
-            <div id="debugGraficoMesCorrente" style="margin-top:12px;color:#e65c1a;font-size:0.9rem;background:#fffbe6;padding:6px 10px;border-radius:8px;max-width:900px;width:100%;word-break:break-all;display:none;">
-                @if(!empty($debugGraficoMesCorrente))
-                    Debug gráfico: {{ json_encode($debugGraficoMesCorrente) }}
-                @endif
-            </div>
         </div>
         <button id="btnDownloadGraficoMesCorrente" class="btn" style="background:#00bfff;color:#fff;font-weight:600;font-size:1.08rem;border-radius:22px;padding:6px 24px;box-shadow:0 1px 6px rgba(24,119,242,0.10);margin-bottom:10px;align-self:flex-end;" onclick="baixarGraficoMesCorrente()">Baixar Gráfico (PNG)</button>
     </div>
@@ -261,7 +256,6 @@
 
         function renderGraficoMesCorrente(labels, valores) {
             const canvasMes = document.getElementById('graficoMesCorrente');
-            const debugDivMes = document.getElementById('debugGraficoMesCorrente');
             if (!canvasMes) return;
             const ctx = canvasMes.getContext('2d');
 
@@ -273,16 +267,6 @@
                 Chart.getChart(canvasMes).destroy();
             }
             ctx.clearRect(0, 0, canvasMes.width, canvasMes.height);
-
-            if (debugDivMes) {
-                const info = {
-                    origem: 'renderGraficoMesCorrente',
-                    labels: labels || [],
-                    valores: Array.isArray(valores) ? valores.map(v => Number(v)) : [],
-                };
-                debugDivMes.style.display = 'block';
-                debugDivMes.textContent = 'Debug gráfico (render): ' + JSON.stringify(info);
-            }
 
             if (typeof window.Chart === 'undefined') {
                 console.error('Chart.js não carregado (window.Chart undefined).');

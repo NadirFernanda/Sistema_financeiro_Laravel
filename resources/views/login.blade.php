@@ -50,14 +50,7 @@
         font-size: 0.98rem;
         margin-top: 18px;
     }
-    .access-levels span {
-        font-weight: bold;
-    }
-    .access-levels .secretaria { color: #1877F2; }
-    .access-levels .contratacao { color: #1877F2; }
-    .access-levels .executor { color: #1877F2; }
-    .access-levels .gabinete { color: #1877F2; }
-    .access-levels .presidente { color: #1877F2; }
+    /* ...existing code... */
 </style>
 
 <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f4f6fa;">
@@ -82,14 +75,7 @@
                 <button type="submit" class="login-btn" style="width:180px;">Entrar</button>
             </div>
         </form>
-        <div class="access-levels mt-3" style="text-align:center;">
-            <span>NÍVEIS DE ACESSO:</span><br>
-            <span class="secretaria">Secretaria:</span> Insere novas despesas.<br>
-            <span class="contratacao">Contratação Pública:</span> Observa as despesas.<br>
-            <span class="executor">Executor:</span> Faz pagamento das despesas autorizadas.<br>
-            <span class="gabinete">Gabinete do Presidente:</span> Visualiza todas as despesas e autoriza pagamento.<br>
-            <span class="presidente">Presidente:</span> Visualiza todas as despesas e autoriza pagamento.
-        </div>
+        <!-- Níveis de acesso removidos da tela de login -->
     </div>
 </div>
 @endsection

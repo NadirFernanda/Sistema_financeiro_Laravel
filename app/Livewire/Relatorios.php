@@ -15,9 +15,8 @@ use DateTime;
 
 class Relatorios extends Component
 {
-    // Filtros para o gráfico de despesas por dia
-    public $mesFiltro;
-    public $anoFiltro;
+    // Filtros para o gráfico de despesas por período
+    // ... já declaradas acima, remover duplicidade
     // Gráfico de dívidas por natureza
     public $dividasNaturezaLabels = [];
     public $dividasNaturezaValores = [];
@@ -210,14 +209,16 @@ class Relatorios extends Component
 
     public function mount()
     {
-        $this->mesFiltro = now()->month;
-        $this->anoFiltro = now()->year;
+        // Inicializa datas do filtro para o mês corrente
+        $this->data_inicio_grafico = now()->startOfMonth()->format('Y-m-d');
+        $this->data_fim_grafico = now()->endOfMonth()->format('Y-m-d');
         $this->carregarResumo();
     }
 
     public function carregarResumo()
     {
         Log::info('Início carregarResumo');
+        // Faturas e dívidas (sem filtro de período)
         $this->despesas = DB::table('movimentos')->orderBy('id')->get();
         $this->faturas = DB::table('facturas')
             ->select('*',
@@ -226,7 +227,6 @@ class Relatorios extends Component
             )
             ->orderByDesc('created_at')
             ->get();
-        // Buscar apenas dívidas (pendentes e parciais)
         $this->dividas = DB::table('facturas')
             ->select('*',
                 DB::raw("COALESCE(status, 'pendente') as status"),
@@ -235,12 +235,11 @@ class Relatorios extends Component
             ->whereIn(DB::raw("LOWER(COALESCE(status, 'pendente'))"), ['pendente', 'parcial'])
             ->orderByDesc('created_at')
             ->get();
-        // Calcular total das dívidas
         $this->totalDividas = $this->dividas->sum(function($f) {
             return (float)($f->valor_pendente ?? 0);
         });
 
-        // Preparar dados para gráfico de dívidas por natureza
+        // Gráfico de dívidas por natureza (sem filtro de período)
         $naturezaDividas = collect($this->dividas)
             ->groupBy(function($item) {
                 return $item->natureza ?? 'Sem Natureza';
@@ -253,37 +252,82 @@ class Relatorios extends Component
             })->values();
         $this->dividasNaturezaLabels = $naturezaDividas->pluck('natureza')->toArray();
         $this->dividasNaturezaValores = $naturezaDividas->pluck('valor')->toArray();
-        $naturezas = DB::table('movimentos')
-            ->select('descricao', 'natureza_pagamento', DB::raw('DATE(data_cadastro) as data_cadastro'), DB::raw('SUM(valor) as total'))
-            ->groupBy('descricao', 'natureza_pagamento', DB::raw('DATE(data_cadastro)'))
-            ->orderBy('natureza_pagamento')
-            ->get();
-        $this->naturezaLabels = $naturezas->map(function($item) {
-            return ($item->descricao ?? '') . ' - ' . ($item->natureza_pagamento ?? '') . ' - ' . ($item->data_cadastro ?? '');
-        })->toArray();
-        $this->naturezaValores = $naturezas->pluck('total')->toArray();
 
-        // Gráfico de despesas por dia do mês filtrado
-        $mes = $this->mesFiltro ?? now()->month;
-        $ano = $this->anoFiltro ?? now()->year;
-        $inicioMes = date('Y-m-01 00:00:00', strtotime($ano.'-'.$mes.'-01'));
-        $fimMes = date('Y-m-t 23:59:59', strtotime($ano.'-'.$mes.'-01'));
-        $movimentosMes = DB::table('movimentos')
-            ->whereBetween('data_cadastro', [$inicioMes, $fimMes])
+        // Gráfico de despesas por período personalizado
+        $this->atualizarGraficoDespesas();
+        Log::info('Fim carregarResumo');
+    }
+    /**
+     * Atualiza o gráfico de despesas por período personalizado
+     */
+    public function atualizarGraficoDespesas()
+    {
+        // Valida se datas foram fornecidas
+        $this->validate([
+            'data_inicio_grafico' => 'required|date',
+            'data_fim_grafico' => 'required|date',
+        ]);
+
+        // Formata datas para Y-m-d
+        $inicio = $this->data_inicio_grafico;
+        $fim = $this->data_fim_grafico;
+
+        if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $inicio)) {
+            $inicio = DateTime::createFromFormat('d/m/Y', $inicio)->format('Y-m-d');
+        }
+        if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $fim)) {
+            $fim = DateTime::createFromFormat('d/m/Y', $fim)->format('Y-m-d');
+        }
+
+        $whereInicio = $inicio . ' 00:00:00';
+        $whereFim = $fim . ' 23:59:59';
+
+        // Busca despesas do período
+        $movimentos = DB::table('movimentos')
+            ->whereBetween('data_cadastro', [$whereInicio, $whereFim])
             ->select(DB::raw('DATE(data_cadastro) as dia'), DB::raw('SUM(valor) as total'))
             ->groupBy(DB::raw('DATE(data_cadastro)'))
             ->orderBy(DB::raw('DATE(data_cadastro)'))
-            ->get();
-        $this->mesCorrenteLabels = $movimentosMes->map(function($item) {
-            return $item->dia;
-        })->toArray();
-        $this->mesCorrenteValores = $movimentosMes->pluck('total')->toArray();
-        Log::info('Fim carregarResumo');
+            ->get()
+            ->keyBy('dia'); // chave = data para fácil lookup
+
+        // Cria labels e valores preenchendo todos os dias do período
+        $labels = [];
+        $valores = [];
+
+        $periodo = new \DatePeriod(
+            new \DateTime($inicio),
+            new \DateInterval('P1D'),
+            (new \DateTime($fim))->modify('+1 day')
+        );
+
+        foreach ($periodo as $dia) {
+            $diaFormat = $dia->format('Y-m-d');
+            $labels[] = $dia->format('d/m'); // label do eixo X
+            $valores[] = isset($movimentos[$diaFormat]) ? (float)$movimentos[$diaFormat]->total : 0;
+        }
+
+        $this->mesCorrenteLabels = $labels;
+        $this->mesCorrenteValores = $valores;
+
+        // Mensagem de feedback
+        if (empty($valores) || array_sum($valores) == 0) {
+            $this->mensagemFiltro = 'Sem dados para o período selecionado.';
+        } else {
+            $this->mensagemFiltro = '';
+        }
+
+        // Dispara evento para o frontend
+        $this->dispatch('atualizar-grafico-mes-corrente', [
+            'labels' => $labels,
+            'valores' => $valores,
+            'mensagem' => $this->mensagemFiltro
+        ]);
     }
 
     public function filtrarGraficoMesCorrente()
     {
-        $this->carregarResumo();
+        $this->atualizarGraficoDespesas();
     }
 
     public function filtrarPorData()

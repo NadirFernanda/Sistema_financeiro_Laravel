@@ -49,143 +49,138 @@
 						   mensagem = data.mensagem ?? '';
 					   }
 				   } else {
-					   labels = args[0] ?? [];
-					   valores = args[1] ?? [];
-					   mensagem = args[2] ?? '';
-				   }
+					</button>
+				</div>
 
-				   console.log('Dados recebidos do backend (natureza):', { labels, valores, mensagem });
-				   const debugDiv = document.getElementById('debugGraficoNatureza');
-				   if (debugDiv) {
-					   debugDiv.style.display = 'none';
-				   }
-				   window.renderGraficoNaturezaTotalData(labels, valores);
-			   });
+				<!-- Seção: Relatório de Dívidas (Pendentes e Parciais) -->
+				<div style="max-width:1200px;margin:38px auto 0 auto;background:#fff;border-radius:22px;box-shadow:0 2px 16px rgba(24,119,242,0.10);padding:36px 36px 32px 36px;">
+					<h2 style="color:#1877F2;font-size:2.1rem;font-weight:700;margin-bottom:2px;">Relatório de Dívidas (Pendentes e Parciais)</h2>
+					<div style="overflow-x:auto;border-radius:22px;box-shadow:0 2px 16px rgba(24,119,242,0.10);background:#fff;margin-bottom:18px;">
+						<table style="width:100%;border-radius:22px;overflow:hidden;box-shadow:none;margin-bottom:0;font-size:0.97rem;">
+							<thead>
+								<tr style="background:#1877F2;color:#fff;font-size:1.01rem;">
+									<th style="padding:12px 10px;font-weight:700;min-width:90px;">Nº Factura</th>
+									<th style="padding:12px 10px;font-weight:700;min-width:120px;">Empresa</th>
+									<th style="padding:12px 10px;font-weight:700;min-width:120px;">Tipo de Serviço</th>
+									<th style="padding:12px 10px;font-weight:700;min-width:120px;">Natureza</th>
+									<th style="padding:12px 10px;font-weight:700;min-width:110px;">Valor Pendente</th>
+									<th style="padding:12px 10px;font-weight:700;min-width:80px;">Status</th>
+								</tr>
+							</thead>
+							<tbody>
+								@if(isset($dividas) && count($dividas))
+									@foreach($dividas as $f)
+										<tr>
+											<td>{{ $f->numero_factura ?? $f->id }}</td>
+											<td>{{ $f->empresa_nome ?? '' }}</td>
+											<td>{{ $f->tipo_servico ?? '' }}</td>
+											<td>{{ $f->natureza ?? '' }}</td>
+											<td>{{ number_format($f->valor_pendente ?? 0, 2, ',', '.') }}</td>
+											<td>{{ ucfirst($f->status ?? '') }}</td>
+										</tr>
+									@endforeach
+									<!-- Linha do total -->
+									<tr style="background:#f4f6fa;font-weight:700;">
+										<td colspan="3" style="text-align:right;">Total da Dívida:</td>
+										<td style="color:#e65c1a;">{{ number_format($totalDividas, 2, ',', '.') }}</td>
+										<td></td>
+									</tr>
+								@else
+									<tr>
+										<td colspan="5" style="text-align:center;color:#888;font-size:1.1rem;padding:16px 0;">Nenhuma dívida encontrada.</td>
+									</tr>
+								@endif
+							</tbody>
+						</table>
+					</div>
+					<div style="display:flex;justify-content:flex-end;margin-bottom:24px;">
+						<button class="btn" wire:click="exportarExcelDividas" style="background:#1877F2;color:#fff;font-weight:600;font-size:1.08rem;border-radius:22px;padding:8px 32px;box-shadow:0 1px 6px rgba(24,119,242,0.10);display:flex;align-items:center;gap:8px;">
+							<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+							Baixar Excel
+						</button>
+					</div>
 
-		   	   // Atualização dinâmica do gráfico de despesas por natureza (período selecionado)
-		   	   Livewire.on('atualizar-grafico-mes-corrente', (...args) => {
-		   	   	   let labels = [];
-		   	   	   let valores = [];
-		   	   	   let mensagem = '';
-
-		   	   	   if (args.length === 1) {
-		   	   	   	   let data = args[0];
-		   	   	   	   if (Array.isArray(data) && data.length === 1 && typeof data[0] === 'object') {
-		   	   	   	   	   data = data[0];
-		   	   	   	   }
-		   	   	   	   if (data && typeof data === 'object') {
-		   	   	   	   	   labels = data.labels ?? [];
-		   	   	   	   	   valores = data.valores ?? [];
-		   	   	   	   	   mensagem = data.mensagem ?? '';
-		   	   	   	   }
-		   	   	   } else {
-		   	   	   	   labels = args[0] ?? [];
-		   	   	   	   valores = args[1] ?? [];
-		   	   	   	   mensagem = args[2] ?? '';
-		   	   	   }
-
-		   	   	   console.log('Dados recebidos do backend (despesas período):', { labels, valores, mensagem });
-		   	   	   if (typeof renderGraficoMesCorrente === 'function') {
-		   	   	   	   renderGraficoMesCorrente(labels, valores);
-		   	   	   }
-		   	   });
-		   });
-
-		   let naturezaChartInstance = null;
-		   window.renderGraficoNaturezaTotalData = function(labels, valores) {
-			   const canvas = document.getElementById('graficoNaturezaTotal');
-			   const debugDiv = document.getElementById('debugGraficoNatureza');
-			   // Log visual e de console
-			   if (debugDiv) {
-				   debugDiv.style.display = 'none';
-			   }
-			   console.log('CHART DEBUG labels:', labels, 'valores:', valores);
-			   if (!canvas) {
-				   if (debugDiv) {
-					   debugDiv.innerText += '\nErro: Canvas graficoNaturezaTotal não encontrado!';
-				   }
-				   console.warn('Canvas graficoNaturezaTotal não encontrado!');
-				   return;
-			   }
-			   // Limpa gráfico anterior
-			   if (naturezaChartInstance) {
-				   naturezaChartInstance.destroy();
-				   naturezaChartInstance = null;
-			   }
-			   if (Chart.getChart && Chart.getChart(canvas)) {
-				   Chart.getChart(canvas).destroy();
-			   }
-			   canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-
-			   // Se não houver dados, mostra mensagem amigável
-			   if (!Array.isArray(labels) || labels.length === 0 || !Array.isArray(valores) || valores.length === 0) {
-				   // Exibe mensagem no canvas
-				   const ctx = canvas.getContext('2d');
-				   ctx.save();
-				   ctx.clearRect(0, 0, canvas.width, canvas.height);
-				   ctx.font = '18px Arial';
-				   ctx.fillStyle = '#e65c1a';
-				   ctx.textAlign = 'center';
-				   ctx.fillText('Nenhum dado disponível para o período selecionado.', canvas.width / 2, canvas.height / 2);
-				   ctx.restore();
-				   return;
-			   }
-
-			   // Garante que todos os valores são números
-			   const valoresNumericos = (Array.isArray(valores) ? valores.map(v => Number(v)) : []);
-
-			   try {
-				   const ctx = canvas.getContext('2d');
-				   const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
-				   gradient.addColorStop(0, '#4facfe');
-				   gradient.addColorStop(1, '#00f2fe');
-
-				   naturezaChartInstance = new Chart(ctx, {
-					   type: 'bar',
-					   data: {
-						   labels: labels,
-						   datasets: [{
-							   label: 'Total Consumido (Kz)',
-							   data: valoresNumericos,
-							   backgroundColor: gradient,
-							   borderRadius: 10,
-							   maxBarThickness: 40,
-							   hoverBackgroundColor: '#1877F2'
-						   }]
-					   },
-					   options: {
-						   indexAxis: 'y',
-						   responsive: true,
-						   maintainAspectRatio: false,
-						   layout: { padding: 12 },
-						   plugins: {
-							   legend: { display: false },
-							   tooltip: {
-								   callbacks: {
-									   label: function(context) {
-										   const value = context.parsed.x || 0;
-										   return ' ' + value.toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Kz';
-									   }
-								   }
-							   },
-						   },
-						   scales: {
-							   x: {
-								   beginAtZero: true,
-								   grid: { color: '#eef2f7' },
-								   ticks: { color: '#1877F2', font: { size: 13 } }
-							   },
-							   y: {
-								   grid: { color: '#f3f5fb' },
-								   ticks: { color: '#1877F2', font: { size: 13 } }
-							   }
-						   }
-					   }
-				   });
-			   } catch (err) {
-				   if (debugDiv) {
-					   debugDiv.innerText += '\nErro ao criar o gráfico: ' + err + '\nStack: ' + (err && err.stack ? err.stack : '');
-				   }
+					<!-- Gráfico: Dívidas por Natureza (após a tabela) -->
+					<h2 style="color:#1877F2;font-size:1.7rem;font-weight:700;margin-bottom:12px;">Gráfico de Dívidas por Natureza</h2>
+					<div style="width:100%;min-height:220px;background:#f4f6fa;border-radius:16px;margin-bottom:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+						<canvas id="graficoDividasNatureza" style="max-width:900px;width:100%;height:220px;"></canvas>
+						<div id="debugGraficoDividasNatureza" style="margin-top:12px;color:#e65c1a;font-size:0.98rem;background:#fffbe6;padding:8px 16px;border-radius:8px;max-width:900px;width:100%;word-break:break-all;display:none;"></div>
+					</div>
+					<button id="btnDownloadGraficoDividasNatureza" class="btn" style="background:#e65c1a;color:#fff;font-weight:600;font-size:1.08rem;border-radius:22px;padding:6px 24px;box-shadow:0 1px 6px rgba(24,119,242,0.10);margin-bottom:10px;align-self:flex-end;" onclick="baixarGraficoDividasNatureza()">Baixar Gráfico (PNG)</button>
+				</div>
+			</div>
+			<script>
+			function baixarGraficoDividasNatureza() {
+				const canvas = document.getElementById('graficoDividasNatureza');
+				if (!canvas) return;
+				// Cria um canvas temporário com fundo branco
+				const tmpCanvas = document.createElement('canvas');
+				tmpCanvas.width = canvas.width;
+				tmpCanvas.height = canvas.height;
+				const ctx = tmpCanvas.getContext('2d');
+				ctx.fillStyle = '#fff';
+				ctx.fillRect(0, 0, tmpCanvas.width, tmpCanvas.height);
+				ctx.drawImage(canvas, 0, 0);
+				const link = document.createElement('a');
+				link.href = tmpCanvas.toDataURL('image/png');
+				link.download = 'grafico_dividas_natureza.png';
+				link.click();
+			}
+			document.addEventListener('DOMContentLoaded', function() {
+				// Gráfico de dívidas por natureza
+				const dividasNaturezaLabels = @json($dividasNaturezaLabels);
+				const dividasNaturezaValores = @json($dividasNaturezaValores);
+				const canvasDividas = document.getElementById('graficoDividasNatureza');
+				const debugDivDividas = document.getElementById('debugGraficoDividasNatureza');
+				if (debugDivDividas) {
+					debugDivDividas.style.display = 'none';
+				}
+				if (canvasDividas && window.Chart) {
+					const valoresNumericos = Array.isArray(dividasNaturezaValores) ? dividasNaturezaValores.map(v => Number(v)) : [];
+					new Chart(canvasDividas.getContext('2d'), {
+						type: 'bar',
+						data: {
+							labels: dividasNaturezaLabels,
+							datasets: [{
+								label: 'Valor Pendente (Kz)',
+								data: valoresNumericos,
+								backgroundColor: '#ff9068',
+								borderRadius: 10,
+								maxBarThickness: 40,
+								hoverBackgroundColor: '#e65c1a'
+							}]
+						},
+						options: {
+							indexAxis: 'y',
+							responsive: true,
+							plugins: {
+								legend: { display: false },
+								title: { display: false },
+								tooltip: {
+									callbacks: {
+										label: function(context) {
+											const value = context.parsed.x || 0;
+											return ' ' + value.toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Kz';
+										}
+									}
+								}
+							},
+							scales: {
+								x: {
+									beginAtZero: true,
+									grid: { color: '#eef2f7' },
+									ticks: { color: '#e65c1a', font: { size: 13 } }
+								},
+								y: {
+									grid: { color: '#f3f5fb' },
+									ticks: { color: '#e65c1a', font: { size: 13 } }
+								}
+							}
+						}
+					});
+				}
+			});
+			</script>
 				   console.error('Erro ao criar o gráfico:', err);
 			   }
 		   };

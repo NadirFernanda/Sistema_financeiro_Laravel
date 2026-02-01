@@ -205,10 +205,12 @@ class Relatorios extends Component
 
     public function mount()
     {
-        $this->data_inicio_grafico = now()->startOfMonth()->format('Y-m-d');
-        $this->data_fim_grafico = now()->endOfMonth()->format('Y-m-d');
-        $this->mesFiltro = (int) now()->format('m');
-        $this->anoFiltro = (int) now()->format('Y');
+        // Campos de data do gráfico devem iniciar VAZIOS na tela
+        $this->data_inicio_grafico = '';
+        $this->data_fim_grafico = '';
+        $this->mesFiltro = null;
+        $this->anoFiltro = null;
+        $this->mensagemFiltro = 'Digite a data de início e fim para ver o gráfico.';
         $this->carregarResumo();
     }
 
@@ -240,7 +242,6 @@ class Relatorios extends Component
         $this->dividasNaturezaLabels = $naturezaDividas->pluck('natureza')->toArray();
         $this->dividasNaturezaValores = $naturezaDividas->pluck('valor')->toArray();
 
-        $this->atualizarGraficoDespesas();
         Log::info('Fim carregarResumo');
     }
 
@@ -248,19 +249,40 @@ class Relatorios extends Component
 
     public function atualizarGraficoDespesas()
     {
-        $mes = $this->mesFiltro ?: (int) now()->format('m');
-        $ano = $this->anoFiltro ?: (int) now()->format('Y');
+        if (!$this->data_inicio_grafico || !$this->data_fim_grafico) {
+            $this->mesCorrenteLabels = [];
+            $this->mesCorrenteValores = [];
+            $this->mensagemFiltro = 'Digite a data de início e fim para ver o gráfico.';
 
-        $inicio = now()->setDate($ano, $mes, 1)->startOfMonth();
-        $fim = (clone $inicio)->endOfMonth();
+            $this->dispatch('atualizar-grafico-mes-corrente', labels: [], valores: [], mensagem: $this->mensagemFiltro);
+            return;
+        }
 
-        $this->data_inicio_grafico = $inicio->format('Y-m-d');
-        $this->data_fim_grafico = $fim->format('Y-m-d');
+        $inicio = $this->data_inicio_grafico;
+        $fim = $this->data_fim_grafico;
+
+        if (!strtotime($inicio) || !strtotime($fim)) {
+            $this->mesCorrenteLabels = [];
+            $this->mesCorrenteValores = [];
+            $this->mensagemFiltro = 'Datas inválidas. Use o formato correto.';
+
+            $this->dispatch('atualizar-grafico-mes-corrente', labels: [], valores: [], mensagem: $this->mensagemFiltro);
+            return;
+        }
+
+        if (strtotime($inicio) > strtotime($fim)) {
+            $this->mesCorrenteLabels = [];
+            $this->mesCorrenteValores = [];
+            $this->mensagemFiltro = 'Data de início maior que a data final.';
+
+            $this->dispatch('atualizar-grafico-mes-corrente', labels: [], valores: [], mensagem: $this->mensagemFiltro);
+            return;
+        }
 
         $movimentos = DB::table('movimentos')
             ->whereBetween('data_cadastro', [
-                $inicio->format('Y-m-d 00:00:00'),
-                $fim->format('Y-m-d 23:59:59'),
+                $inicio . ' 00:00:00',
+                $fim . ' 23:59:59',
             ])
             ->select('natureza_pagamento', DB::raw('SUM(valor) as total'))
             ->groupBy('natureza_pagamento')

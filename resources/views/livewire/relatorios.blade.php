@@ -23,7 +23,6 @@
 		   <h3 style="color:#1877F2;font-size:1.2rem;font-weight:700;margin-bottom:18px;text-align:left;">Despesas por Natureza no período selecionado</h3>
 		   <div style="width:100%;min-height:220px;background:#f4f6fa;border-radius:16px;margin-bottom:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
 			   <canvas id="graficoMesCorrente" style="max-width:900px;width:100%;height:220px;"></canvas>
-			   <div id="debugGraficoMesCorrente" style="margin-top:12px;color:#e65c1a;font-size:0.98rem;background:#fffbe6;padding:8px 16px;border-radius:8px;max-width:900px;width:100%;word-break:break-all;display:none;"></div>
 		   </div>
 		   <button id="btnDownloadGraficoMesCorrente" class="btn" style="background:#00bfff;color:#fff;font-weight:600;font-size:1.08rem;border-radius:22px;padding:6px 24px;box-shadow:0 1px 6px rgba(24,119,242,0.10);margin-bottom:10px;align-self:flex-end;" onclick="baixarGraficoMesCorrente()">Baixar Gráfico (PNG)</button>
 	   </div>
@@ -58,11 +57,38 @@
 				   console.log('Dados recebidos do backend (natureza):', { labels, valores, mensagem });
 				   const debugDiv = document.getElementById('debugGraficoNatureza');
 				   if (debugDiv) {
-					   debugDiv.style.display = 'block';
-					   debugDiv.innerText = 'Labels: ' + JSON.stringify(labels) + '\nValores: ' + JSON.stringify(valores);
+					   debugDiv.style.display = 'none';
 				   }
 				   window.renderGraficoNaturezaTotalData(labels, valores);
 			   });
+
+		   	   // Atualização dinâmica do gráfico de despesas por natureza (período selecionado)
+		   	   Livewire.on('atualizar-grafico-mes-corrente', (...args) => {
+		   	   	   let labels = [];
+		   	   	   let valores = [];
+		   	   	   let mensagem = '';
+
+		   	   	   if (args.length === 1) {
+		   	   	   	   let data = args[0];
+		   	   	   	   if (Array.isArray(data) && data.length === 1 && typeof data[0] === 'object') {
+		   	   	   	   	   data = data[0];
+		   	   	   	   }
+		   	   	   	   if (data && typeof data === 'object') {
+		   	   	   	   	   labels = data.labels ?? [];
+		   	   	   	   	   valores = data.valores ?? [];
+		   	   	   	   	   mensagem = data.mensagem ?? '';
+		   	   	   	   }
+		   	   	   } else {
+		   	   	   	   labels = args[0] ?? [];
+		   	   	   	   valores = args[1] ?? [];
+		   	   	   	   mensagem = args[2] ?? '';
+		   	   	   }
+
+		   	   	   console.log('Dados recebidos do backend (despesas período):', { labels, valores, mensagem });
+		   	   	   if (typeof renderGraficoMesCorrente === 'function') {
+		   	   	   	   renderGraficoMesCorrente(labels, valores);
+		   	   	   }
+		   	   });
 		   });
 
 		   let naturezaChartInstance = null;
@@ -71,8 +97,7 @@
 			   const debugDiv = document.getElementById('debugGraficoNatureza');
 			   // Log visual e de console
 			   if (debugDiv) {
-				   debugDiv.style.display = 'block';
-				   debugDiv.innerText = 'Labels: ' + JSON.stringify(labels) + '\nValores: ' + JSON.stringify(valores);
+				   debugDiv.style.display = 'none';
 			   }
 			   console.log('CHART DEBUG labels:', labels, 'valores:', valores);
 			   if (!canvas) {
@@ -94,9 +119,6 @@
 
 			   // Se não houver dados, mostra mensagem amigável
 			   if (!Array.isArray(labels) || labels.length === 0 || !Array.isArray(valores) || valores.length === 0) {
-				   if (debugDiv) {
-					   debugDiv.innerText += '\nNenhum dado disponível para o período selecionado.';
-				   }
 				   // Exibe mensagem no canvas
 				   const ctx = canvas.getContext('2d');
 				   ctx.save();
@@ -113,34 +135,49 @@
 			   const valoresNumericos = (Array.isArray(valores) ? valores.map(v => Number(v)) : []);
 
 			   try {
-				   naturezaChartInstance = new Chart(canvas.getContext('2d'), {
+				   const ctx = canvas.getContext('2d');
+				   const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+				   gradient.addColorStop(0, '#4facfe');
+				   gradient.addColorStop(1, '#00f2fe');
+
+				   naturezaChartInstance = new Chart(ctx, {
 					   type: 'bar',
 					   data: {
 						   labels: labels,
 						   datasets: [{
 							   label: 'Total Consumido (Kz)',
 							   data: valoresNumericos,
-							   backgroundColor: '#1877F2',
-							   borderRadius: 8,
-							   barThickness: 38
+							   backgroundColor: gradient,
+							   borderRadius: 10,
+							   maxBarThickness: 40,
+							   hoverBackgroundColor: '#1877F2'
 						   }]
 					   },
 					   options: {
-						   indexAxis: 'y', // Gráfico horizontal
+						   indexAxis: 'y',
 						   responsive: true,
+						   maintainAspectRatio: false,
+						   layout: { padding: 12 },
 						   plugins: {
 							   legend: { display: false },
-							   title: { display: false }
+							   tooltip: {
+								   callbacks: {
+									   label: function(context) {
+										   const value = context.parsed.x || 0;
+										   return ' ' + value.toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Kz';
+									   }
+								   }
+							   },
 						   },
 						   scales: {
 							   x: {
 								   beginAtZero: true,
-								   grid: { color: '#eee' },
-								   ticks: { color: '#1877F2', font: { size: 16 } }
+								   grid: { color: '#eef2f7' },
+								   ticks: { color: '#1877F2', font: { size: 13 } }
 							   },
 							   y: {
-								   grid: { color: '#eee' },
-								   ticks: { color: '#1877F2', font: { size: 16 } }
+								   grid: { color: '#f3f5fb' },
+								   ticks: { color: '#1877F2', font: { size: 13 } }
 							   }
 						   }
 					   }
@@ -285,8 +322,7 @@
 									const canvasDividas = document.getElementById('graficoDividasNatureza');
 									const debugDivDividas = document.getElementById('debugGraficoDividasNatureza');
 									if (debugDivDividas) {
-										debugDivDividas.style.display = 'block';
-										debugDivDividas.innerText = 'Natureza: ' + JSON.stringify(dividasNaturezaLabels) + '\nValores: ' + JSON.stringify(dividasNaturezaValores);
+										debugDivDividas.style.display = 'none';
 									}
 									if (canvasDividas) {
 										const valoresNumericos = Array.isArray(dividasNaturezaValores) ? dividasNaturezaValores.map(v => Number(v)) : [];
@@ -297,9 +333,10 @@
 												datasets: [{
 													label: 'Valor Pendente (Kz)',
 													data: valoresNumericos,
-													backgroundColor: '#e65c1a',
-													borderRadius: 8,
-													barThickness: 38
+													backgroundColor: '#ff9068',
+													borderRadius: 10,
+													maxBarThickness: 40,
+													hoverBackgroundColor: '#e65c1a'
 												}]
 											},
 											options: {
@@ -310,22 +347,29 @@
 													title: { display: false }
 												},
 												scales: {
-													x: {
-														beginAtZero: true,
-														grid: { color: '#eee' },
-														ticks: { color: '#e65c1a', font: { size: 16 } }
+													plugins: {
+														legend: { display: false },
+														tooltip: {
+															callbacks: {
+																label: function(context) {
+																	const value = context.parsed.x || 0;
+																	return ' ' + value.toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Kz';
+																}
+															}
+														}
 													},
-													y: {
-														grid: { color: '#eee' },
-														ticks: { color: '#e65c1a', font: { size: 16 } }
+													scales: {
+														x: {
+															beginAtZero: true,
+															grid: { color: '#eef2f7' },
+															ticks: { color: '#e65c1a', font: { size: 13 } }
+														},
+														y: {
+															grid: { color: '#f3f5fb' },
+															ticks: { color: '#e65c1a', font: { size: 13 } }
+														}
 													}
 												}
-											}
-										});
-									}
-								});
-								</script>
-				<div style="max-width:1200px;margin:38px auto 0 auto;background:#fff;border-radius:22px;box-shadow:0 2px 16px rgba(24,119,242,0.10);padding:36px 36px 32px 36px;">
 					<h2 style="color:#1877F2;font-size:2.1rem;font-weight:700;margin-bottom:2px;">Relatório de Dívidas (Pendentes e Parciais)</h2>
 					<div style="overflow-x:auto;border-radius:22px;box-shadow:0 2px 16px rgba(24,119,242,0.10);background:#fff;margin-bottom:18px;">
 						<table style="width:100%;border-radius:22px;overflow:hidden;box-shadow:none;margin-bottom:0;font-size:0.97rem;">
@@ -374,54 +418,91 @@
 				</div>
 			</div>
 			<script>
-			document.addEventListener('DOMContentLoaded', function() {
-			// Gráfico do mês corrente
-			const mesCorrenteLabels = @json($mesCorrenteLabels);
-			const mesCorrenteValores = @json($mesCorrenteValores);
-			const canvasMes = document.getElementById('graficoMesCorrente');
-			const debugDivMes = document.getElementById('debugGraficoMesCorrente');
-			if (debugDivMes) {
-				debugDivMes.style.display = 'block';
-				debugDivMes.innerText = 'Naturezas: ' + JSON.stringify(mesCorrenteLabels) + '\nValores: ' + JSON.stringify(mesCorrenteValores);
-			}
-			if (canvasMes) {
-				const valoresNumericos = Array.isArray(mesCorrenteValores) ? mesCorrenteValores.map(v => Number(v)) : [];
-				if (!Array.isArray(mesCorrenteLabels) || mesCorrenteLabels.length === 0 || !Array.isArray(valoresNumericos) || valoresNumericos.length === 0) {
-					// Exibe mensagem no canvas
-					const ctx = canvasMes.getContext('2d');
+			let mesCorrenteChartInstance = null;
+
+			function renderGraficoMesCorrente(labels, valores) {
+				const canvasMes = document.getElementById('graficoMesCorrente');
+				if (!canvasMes) return;
+				const ctx = canvasMes.getContext('2d');
+
+				// Destroi gráfico anterior, se existir
+				if (mesCorrenteChartInstance) {
+					mesCorrenteChartInstance.destroy();
+					mesCorrenteChartInstance = null;
+				}
+				if (Chart.getChart && Chart.getChart(canvasMes)) {
+					Chart.getChart(canvasMes).destroy();
+				}
+				ctx.clearRect(0, 0, canvasMes.width, canvasMes.height);
+
+				// Sem dados: mostra mensagem elegante
+				if (!Array.isArray(labels) || labels.length === 0 || !Array.isArray(valores) || valores.length === 0) {
 					ctx.save();
 					ctx.clearRect(0, 0, canvasMes.width, canvasMes.height);
-					ctx.font = '18px Arial';
-					ctx.fillStyle = '#e65c1a';
+					ctx.font = '16px "Segoe UI", Arial';
+					ctx.fillStyle = '#9ca3af';
 					ctx.textAlign = 'center';
 					ctx.fillText('Nenhum dado disponível para o período selecionado.', canvasMes.width / 2, canvasMes.height / 2);
 					ctx.restore();
-				} else {
-					new Chart(canvasMes.getContext('2d'), {
-						type: 'bar',
-						data: {
-							labels: mesCorrenteLabels,
-							datasets: [{
-								label: 'Total por Natureza (Kz)',
-								data: valoresNumericos,
-								backgroundColor: '#00BFFF',
-								borderRadius: 8,
-								barThickness: 28
-							}]
-						},
-						options: {
-							indexAxis: 'x',
-							plugins: {
-								legend: { display: true },
-								title: { display: false }
+					return;
+				}
+
+				const valoresNumericos = Array.isArray(valores) ? valores.map(v => Number(v)) : [];
+				const gradient = ctx.createLinearGradient(0, 0, 0, canvasMes.height);
+				gradient.addColorStop(0, '#4facfe');
+				gradient.addColorStop(1, '#00f2fe');
+
+				mesCorrenteChartInstance = new Chart(ctx, {
+					type: 'bar',
+					data: {
+						labels: labels,
+						datasets: [{
+							label: 'Total por Natureza (Kz)',
+							data: valoresNumericos,
+							backgroundColor: gradient,
+							borderRadius: 10,
+							maxBarThickness: 40,
+							hoverBackgroundColor: '#1877F2'
+						}]
+					},
+					options: {
+						indexAxis: 'x',
+						responsive: true,
+						maintainAspectRatio: false,
+						layout: { padding: 12 },
+						plugins: {
+							legend: {
+								display: false
 							},
-							scales: {
-								y: { beginAtZero: true }
+							tooltip: {
+								callbacks: {
+									label: function(context) {
+										const value = context.parsed.y || 0;
+										return ' ' + value.toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Kz';
+									}
+								}
+							}
+						},
+						scales: {
+							x: {
+								grid: { color: '#eef2f7' },
+								ticks: { color: '#4b5563', font: { size: 12 } }
+							},
+							y: {
+								beginAtZero: true,
+								grid: { color: '#f3f5fb' },
+								ticks: { color: '#4b5563', font: { size: 12 } }
 							}
 						}
-					});
-				}
+					}
+				});
 			}
+
+			document.addEventListener('DOMContentLoaded', function() {
+				// Render inicial (se o backend já mandar algum dado)
+				const mesCorrenteLabels = @json($mesCorrenteLabels);
+				const mesCorrenteValores = @json($mesCorrenteValores);
+				renderGraficoMesCorrente(mesCorrenteLabels, mesCorrenteValores);
 			});
 			</script>
 <script>

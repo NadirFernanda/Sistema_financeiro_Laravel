@@ -15,6 +15,9 @@ use DateTime;
 
 class Relatorios extends Component
 {
+    // Gráfico de dívidas por natureza
+    public $dividasNaturezaLabels = [];
+    public $dividasNaturezaValores = [];
     public $mensagemFiltro = '';
     public $naturezaLabels = [];
     public $naturezaValores = [];
@@ -231,6 +234,20 @@ class Relatorios extends Component
         $this->totalDividas = $this->dividas->sum(function($f) {
             return (float)($f->valor_pendente ?? 0);
         });
+
+        // Preparar dados para gráfico de dívidas por natureza
+        $naturezaDividas = collect($this->dividas)
+            ->groupBy(function($item) {
+                return $item->natureza ?? 'Sem Natureza';
+            })
+            ->map(function($items, $natureza) {
+                return [
+                    'natureza' => $natureza,
+                    'valor' => collect($items)->sum(function($i) { return (float)($i->valor_pendente ?? 0); })
+                ];
+            })->values();
+        $this->dividasNaturezaLabels = $naturezaDividas->pluck('natureza')->toArray();
+        $this->dividasNaturezaValores = $naturezaDividas->pluck('valor')->toArray();
         $naturezas = DB::table('movimentos')
             ->select('descricao', 'natureza_pagamento', DB::raw('DATE(data_cadastro) as data_cadastro'), DB::raw('SUM(valor) as total'))
             ->groupBy('descricao', 'natureza_pagamento', DB::raw('DATE(data_cadastro)'))
@@ -282,6 +299,8 @@ class Relatorios extends Component
             'filtro' => $this->filtro,
             'naturezaLabels' => $this->naturezaLabels,
             'naturezaValores' => $this->naturezaValores,
+            'dividasNaturezaLabels' => $this->dividasNaturezaLabels,
+            'dividasNaturezaValores' => $this->dividasNaturezaValores,
             'mensagemFiltro' => $this->mensagemFiltro
         ])->with(['mensagemFiltro' => $this->mensagemFiltro]);
     }

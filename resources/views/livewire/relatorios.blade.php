@@ -27,7 +27,7 @@
 		   <button id="btnDownloadGraficoMesCorrente" class="btn" style="background:#00bfff;color:#fff;font-weight:600;font-size:1.08rem;border-radius:22px;padding:6px 24px;box-shadow:0 1px 6px rgba(24,119,242,0.10);margin-bottom:10px;align-self:flex-end;" onclick="baixarGraficoMesCorrente()">Baixar Gráfico (PNG)</button>
 	   </div>
 	<!-- Chart.js deve ser carregado antes de qualquer uso -->
-	   <script src="/js/chart.umd.js"></script>
+	   <script src="{{ asset('js/chart.umd.js') }}"></script>
 
 	   <!-- Escuta evento Livewire emitido do backend (Livewire 3+) -->
 
@@ -425,15 +425,27 @@
 				if (!canvasMes) return;
 				const ctx = canvasMes.getContext('2d');
 
-				// Destroi gráfico anterior, se existir
+				// Limpa qualquer desenho anterior
 				if (mesCorrenteChartInstance) {
 					mesCorrenteChartInstance.destroy();
 					mesCorrenteChartInstance = null;
 				}
-				if (Chart.getChart && Chart.getChart(canvasMes)) {
+				if (window.Chart && Chart.getChart && Chart.getChart(canvasMes)) {
 					Chart.getChart(canvasMes).destroy();
 				}
 				ctx.clearRect(0, 0, canvasMes.width, canvasMes.height);
+
+				// Se a biblioteca Chart.js não estiver carregada, mostra aviso
+				if (typeof window.Chart === 'undefined') {
+					console.error('Chart.js não carregado (window.Chart undefined).');
+					ctx.save();
+					ctx.font = '16px "Segoe UI", Arial';
+					ctx.fillStyle = '#e65c1a';
+					ctx.textAlign = 'center';
+					ctx.fillText('Erro ao carregar biblioteca de gráfico.', canvasMes.width / 2, canvasMes.height / 2);
+					ctx.restore();
+					return;
+				}
 
 				// Sem dados: mostra mensagem bem visível
 				if (!Array.isArray(labels) || labels.length === 0 || !Array.isArray(valores) || valores.length === 0) {
@@ -450,48 +462,57 @@
 				const valoresNumericos = Array.isArray(valores) ? valores.map(v => Number(v)) : [];
 				console.log('Render gráfico despesas - naturezas:', labels, 'valores:', valoresNumericos);
 
-				// Usar configuração semelhante ao gráfico de dívidas (já testado), mas vertical
-				mesCorrenteChartInstance = new Chart(canvasMes.getContext('2d'), {
-					type: 'bar',
-					data: {
-						labels: labels,
-						datasets: [{
-							label: 'Total por Natureza (Kz)',
-							data: valoresNumericos,
-							backgroundColor: '#4facfe',
-							borderRadius: 10,
-							barThickness: 38,
-							hoverBackgroundColor: '#1877F2'
-						}]
-					},
-					options: {
-						indexAxis: 'x',
-						responsive: true,
-						plugins: {
-							legend: { display: false },
-							tooltip: {
-								callbacks: {
-									label: function(context) {
-										const value = context.parsed.y || 0;
-										return ' ' + value.toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Kz';
+				try {
+					mesCorrenteChartInstance = new Chart(canvasMes.getContext('2d'), {
+						type: 'bar',
+						data: {
+							labels: labels,
+							datasets: [{
+								label: 'Total por Natureza (Kz)',
+								data: valoresNumericos,
+								backgroundColor: '#4facfe',
+								borderRadius: 10,
+								barThickness: 38,
+								hoverBackgroundColor: '#1877F2'
+							}]
+						},
+						options: {
+							indexAxis: 'x',
+							responsive: true,
+							plugins: {
+								legend: { display: false },
+								tooltip: {
+									callbacks: {
+										label: function(context) {
+											const value = context.parsed.y || 0;
+											return ' ' + value.toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Kz';
+										}
 									}
 								}
-							}
-						},
-						scales: {
-							x: {
-								beginAtZero: true,
-								grid: { color: '#eef2f7' },
-								ticks: { color: '#4b5563', font: { size: 12 } }
 							},
-							y: {
-								beginAtZero: true,
-								grid: { color: '#f3f5fb' },
-								ticks: { color: '#4b5563', font: { size: 12 } }
+							scales: {
+								x: {
+									beginAtZero: true,
+									grid: { color: '#eef2f7' },
+									ticks: { color: '#4b5563', font: { size: 12 } }
+								},
+								y: {
+									beginAtZero: true,
+									grid: { color: '#f3f5fb' },
+									ticks: { color: '#4b5563', font: { size: 12 } }
+								}
 							}
 						}
-					}
-				});
+					});
+				} catch (err) {
+					console.error('Erro ao criar gráfico de despesas:', err);
+					ctx.save();
+					ctx.font = '16px "Segoe UI", Arial';
+					ctx.fillStyle = '#e65c1a';
+					ctx.textAlign = 'center';
+					ctx.fillText('Erro ao desenhar o gráfico de despesas.', canvasMes.width / 2, canvasMes.height / 2);
+					ctx.restore();
+				}
 			}
 
 			document.addEventListener('DOMContentLoaded', function() {

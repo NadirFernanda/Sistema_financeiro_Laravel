@@ -222,15 +222,16 @@
 						</button>
 					</div>
 
-				<!-- Gráfico: Dívidas por Natureza -->
-				<div style="max-width:1200px;margin:38px auto 0 auto;background:#fff;border-radius:22px;box-shadow:0 2px 16px rgba(24,119,242,0.10);padding:36px 36px 32px 36px;">
-					<h2 style="color:#1877F2;font-size:1.7rem;font-weight:700;margin-bottom:12px;">Gráfico de Dívidas por Natureza</h2>
-					<div style="width:100%;min-height:220px;background:#f4f6fa;border-radius:16px;margin-bottom:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-						<canvas id="graficoDividasNatureza" style="max-width:900px;width:100%;height:220px;"></canvas>
-						<div id="debugGraficoDividasNatureza" style="margin-top:12px;color:#e65c1a;font-size:0.98rem;background:#fffbe6;padding:8px 16px;border-radius:8px;max-width:900px;width:100%;word-break:break-all;display:none;"></div>
-					</div>
-				</div>
 				<!-- Seção: Relatório de Dívidas (Pendentes e Parciais) -->
+								<!-- Seção: Relatório de Dívidas (Pendentes e Parciais) -->
+									<!-- Gráfico: Dívidas por Natureza (agora abaixo da tabela) -->
+									<div style="max-width:1200px;margin:38px auto 0 auto;background:#fff;border-radius:22px;box-shadow:0 2px 16px rgba(24,119,242,0.10);padding:36px 36px 32px 36px;">
+										<h2 style="color:#1877F2;font-size:1.7rem;font-weight:700;margin-bottom:12px;">Gráfico de Dívidas por Natureza</h2>
+										<div style="width:100%;min-height:220px;background:#f4f6fa;border-radius:16px;margin-bottom:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+											<canvas id="graficoDividasNatureza" style="max-width:900px;width:100%;height:220px;"></canvas>
+											<div id="debugGraficoDividasNatureza" style="margin-top:12px;color:#e65c1a;font-size:0.98rem;background:#fffbe6;padding:8px 16px;border-radius:8px;max-width:900px;width:100%;word-break:break-all;display:none;"></div>
+										</div>
+									</div>
 				</div>
 				<script>
 				document.addEventListener('DOMContentLoaded', function() {

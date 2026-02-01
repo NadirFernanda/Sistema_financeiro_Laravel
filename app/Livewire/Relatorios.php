@@ -115,16 +115,10 @@ class Relatorios extends Component
     {
         $this->mensagemFiltro = '[DEBUG] Método filtrarDespesasPorData chamado em ' . now();
         // Força formato Y-m-d antes de validar
-        $inicio = $this->data_inicio_grafico;
-        $fim = $this->data_fim_grafico;
-        if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $inicio)) {
-            $dtInicio = DateTime::createFromFormat('d/m/Y', $inicio);
-            $inicio = $dtInicio ? $dtInicio->format('Y-m-d') : $inicio;
-        }
-        if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $fim)) {
-            $dtFim = DateTime::createFromFormat('d/m/Y', $fim);
-            $fim = $dtFim ? $dtFim->format('Y-m-d') : $fim;
-        }
+        $dtInicio = DateTime::createFromFormat('d/m/Y', $this->data_inicio_grafico);
+        $inicio = $dtInicio ? $dtInicio->format('Y-m-d') : (is_string($this->data_inicio_grafico) && !empty($this->data_inicio_grafico) ? $this->data_inicio_grafico : now()->startOfMonth()->format('Y-m-d'));
+        $dtFim = DateTime::createFromFormat('d/m/Y', $this->data_fim_grafico);
+        $fim = $dtFim ? $dtFim->format('Y-m-d') : (is_string($this->data_fim_grafico) && !empty($this->data_fim_grafico) ? $this->data_fim_grafico : now()->endOfMonth()->format('Y-m-d'));
         // Validação robusta
         $this->validate([
             'data_inicio_grafico' => 'required|date_format:Y-m-d',
@@ -268,14 +262,10 @@ class Relatorios extends Component
     {
 
         // Padroniza datas para Y-m-d antes de validar
-        if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $this->data_inicio_grafico)) {
-            $dtInicio = DateTime::createFromFormat('d/m/Y', $this->data_inicio_grafico);
-            $this->data_inicio_grafico = $dtInicio ? $dtInicio->format('Y-m-d') : $this->data_inicio_grafico;
-        }
-        if (preg_match('/\d{2}\/\d{2}\/\d{4}/', $this->data_fim_grafico)) {
-            $dtFim = DateTime::createFromFormat('d/m/Y', $this->data_fim_grafico);
-            $this->data_fim_grafico = $dtFim ? $dtFim->format('Y-m-d') : $this->data_fim_grafico;
-        }
+        $dtInicio = DateTime::createFromFormat('d/m/Y', $this->data_inicio_grafico);
+        $this->data_inicio_grafico = $dtInicio ? $dtInicio->format('Y-m-d') : (is_string($this->data_inicio_grafico) && !empty($this->data_inicio_grafico) ? $this->data_inicio_grafico : now()->startOfMonth()->format('Y-m-d'));
+        $dtFim = DateTime::createFromFormat('d/m/Y', $this->data_fim_grafico);
+        $this->data_fim_grafico = $dtFim ? $dtFim->format('Y-m-d') : (is_string($this->data_fim_grafico) && !empty($this->data_fim_grafico) ? $this->data_fim_grafico : now()->endOfMonth()->format('Y-m-d'));
         $this->validate([
             'data_inicio_grafico' => 'required|date',
             'data_fim_grafico' => 'required|date',
@@ -309,7 +299,7 @@ class Relatorios extends Component
         foreach ($periodo as $dia) {
             $diaFormat = $dia->format('Y-m-d');
             $labels[] = $dia->format('d/m'); // label do eixo X
-            $valores[] = isset($movimentos[$diaFormat]) ? (float)$movimentos[$diaFormat]->total : 0;
+            $valores[] = $movimentos->has($diaFormat) ? (float)$movimentos->get($diaFormat)->total : 0;
         }
 
         $this->mesCorrenteLabels = $labels;
@@ -339,9 +329,9 @@ class Relatorios extends Component
     {
         // Padroniza datas para Y-m-d antes de validar
         $dtInicio = DateTime::createFromFormat('d/m/Y', $this->data_inicio_grafico);
-        $this->data_inicio_grafico = $dtInicio ? $dtInicio->format('Y-m-d') : $this->data_inicio_grafico;
+        $this->data_inicio_grafico = $dtInicio ? $dtInicio->format('Y-m-d') : (is_string($this->data_inicio_grafico) && !empty($this->data_inicio_grafico) ? $this->data_inicio_grafico : now()->startOfMonth()->format('Y-m-d'));
         $dtFim = DateTime::createFromFormat('d/m/Y', $this->data_fim_grafico);
-        $this->data_fim_grafico = $dtFim ? $dtFim->format('Y-m-d') : $this->data_fim_grafico;
+        $this->data_fim_grafico = $dtFim ? $dtFim->format('Y-m-d') : (is_string($this->data_fim_grafico) && !empty($this->data_fim_grafico) ? $this->data_fim_grafico : now()->endOfMonth()->format('Y-m-d'));
         $this->validate([
             'data_inicio_grafico' => 'required|date_format:Y-m-d',
             'data_fim_grafico' => 'required|date_format:Y-m-d',

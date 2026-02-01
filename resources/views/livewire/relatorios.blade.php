@@ -223,84 +223,79 @@
 					</div>
 
 				<!-- Seção: Relatório de Dívidas (Pendentes e Parciais) -->
-								<!-- Seção: Relatório de Dívidas (Pendentes e Parciais) -->
-									<!-- Gráfico: Dívidas por Natureza (agora abaixo da tabela) -->
-									<div style="max-width:1200px;margin:38px auto 0 auto;background:#fff;border-radius:22px;box-shadow:0 2px 16px rgba(24,119,242,0.10);padding:36px 36px 32px 36px;">
-										<h2 style="color:#1877F2;font-size:1.7rem;font-weight:700;margin-bottom:12px;">Gráfico de Dívidas por Natureza</h2>
-										<div style="width:100%;min-height:220px;background:#f4f6fa;border-radius:16px;margin-bottom:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-											<canvas id="graficoDividasNatureza" style="max-width:900px;width:100%;height:220px;"></canvas>
-											<div id="debugGraficoDividasNatureza" style="margin-top:12px;color:#e65c1a;font-size:0.98rem;background:#fffbe6;padding:8px 16px;border-radius:8px;max-width:900px;width:100%;word-break:break-all;display:none;"></div>
-										</div>
-										<button id="btnDownloadGraficoDividasNatureza" class="btn" style="background:#e65c1a;color:#fff;font-weight:600;font-size:1.08rem;border-radius:22px;padding:6px 24px;box-shadow:0 1px 6px rgba(24,119,242,0.10);margin-bottom:10px;align-self:flex-end;" onclick="baixarGraficoDividasNatureza()">Baixar Gráfico (PNG)</button>
+								<!-- Gráfico: Dívidas por Natureza (após a tabela) -->
+								<div style="max-width:1200px;margin:38px auto 0 auto;background:#fff;border-radius:22px;box-shadow:0 2px 16px rgba(24,119,242,0.10);padding:36px 36px 32px 36px;">
+									<h2 style="color:#1877F2;font-size:1.7rem;font-weight:700;margin-bottom:12px;">Gráfico de Dívidas por Natureza</h2>
+									<div style="width:100%;min-height:220px;background:#f4f6fa;border-radius:16px;margin-bottom:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+										<canvas id="graficoDividasNatureza" style="max-width:900px;width:100%;height:220px;"></canvas>
+										<div id="debugGraficoDividasNatureza" style="margin-top:12px;color:#e65c1a;font-size:0.98rem;background:#fffbe6;padding:8px 16px;border-radius:8px;max-width:900px;width:100%;word-break:break-all;display:none;"></div>
 									</div>
-				</div>
-				<script>
-				function baixarGraficoDividasNatureza() {
-					const canvas = document.getElementById('graficoDividasNatureza');
-					if (!canvas) return;
-					// Cria um canvas temporário com fundo branco
-					const tmpCanvas = document.createElement('canvas');
-					tmpCanvas.width = canvas.width;
-					tmpCanvas.height = canvas.height;
-					const ctx = tmpCanvas.getContext('2d');
-					ctx.fillStyle = '#fff';
-					ctx.fillRect(0, 0, tmpCanvas.width, tmpCanvas.height);
-					ctx.drawImage(canvas, 0, 0);
-					const link = document.createElement('a');
-					link.href = tmpCanvas.toDataURL('image/png');
-					link.download = 'grafico_dividas_natureza.png';
-					link.click();
-				}
-				</script>
-				</div>
-				<script>
-				document.addEventListener('DOMContentLoaded', function() {
-					// Gráfico de dívidas por natureza
-					const dividasNaturezaLabels = @json($dividasNaturezaLabels);
-					const dividasNaturezaValores = @json($dividasNaturezaValores);
-					const canvasDividas = document.getElementById('graficoDividasNatureza');
-					const debugDivDividas = document.getElementById('debugGraficoDividasNatureza');
-					if (debugDivDividas) {
-						debugDivDividas.style.display = 'block';
-						debugDivDividas.innerText = 'Natureza: ' + JSON.stringify(dividasNaturezaLabels) + '\nValores: ' + JSON.stringify(dividasNaturezaValores);
-					}
-					if (canvasDividas) {
-						const valoresNumericos = Array.isArray(dividasNaturezaValores) ? dividasNaturezaValores.map(v => Number(v)) : [];
-						new Chart(canvasDividas.getContext('2d'), {
-							type: 'bar',
-							data: {
-								labels: dividasNaturezaLabels,
-								datasets: [{
-									label: 'Valor Pendente (Kz)',
-									data: valoresNumericos,
-									backgroundColor: '#e65c1a',
-									borderRadius: 8,
-									barThickness: 38
-								}]
-							},
-							options: {
-								indexAxis: 'y',
-								responsive: true,
-								plugins: {
-									legend: { display: false },
-									title: { display: false }
-								},
-								scales: {
-									x: {
-										beginAtZero: true,
-										grid: { color: '#eee' },
-										ticks: { color: '#e65c1a', font: { size: 16 } }
-									},
-									y: {
-										grid: { color: '#eee' },
-										ticks: { color: '#e65c1a', font: { size: 16 } }
-									}
+									<button id="btnDownloadGraficoDividasNatureza" class="btn" style="background:#e65c1a;color:#fff;font-weight:600;font-size:1.08rem;border-radius:22px;padding:6px 24px;box-shadow:0 1px 6px rgba(24,119,242,0.10);margin-bottom:10px;align-self:flex-end;" onclick="baixarGraficoDividasNatureza()">Baixar Gráfico (PNG)</button>
+								</div>
+								<script>
+								function baixarGraficoDividasNatureza() {
+									const canvas = document.getElementById('graficoDividasNatureza');
+									if (!canvas) return;
+									// Cria um canvas temporário com fundo branco
+									const tmpCanvas = document.createElement('canvas');
+									tmpCanvas.width = canvas.width;
+									tmpCanvas.height = canvas.height;
+									const ctx = tmpCanvas.getContext('2d');
+									ctx.fillStyle = '#fff';
+									ctx.fillRect(0, 0, tmpCanvas.width, tmpCanvas.height);
+									ctx.drawImage(canvas, 0, 0);
+									const link = document.createElement('a');
+									link.href = tmpCanvas.toDataURL('image/png');
+									link.download = 'grafico_dividas_natureza.png';
+									link.click();
 								}
-							}
-						});
-					}
-				});
-				</script>
+								document.addEventListener('DOMContentLoaded', function() {
+									// Gráfico de dívidas por natureza
+									const dividasNaturezaLabels = @json($dividasNaturezaLabels);
+									const dividasNaturezaValores = @json($dividasNaturezaValores);
+									const canvasDividas = document.getElementById('graficoDividasNatureza');
+									const debugDivDividas = document.getElementById('debugGraficoDividasNatureza');
+									if (debugDivDividas) {
+										debugDivDividas.style.display = 'block';
+										debugDivDividas.innerText = 'Natureza: ' + JSON.stringify(dividasNaturezaLabels) + '\nValores: ' + JSON.stringify(dividasNaturezaValores);
+									}
+									if (canvasDividas) {
+										const valoresNumericos = Array.isArray(dividasNaturezaValores) ? dividasNaturezaValores.map(v => Number(v)) : [];
+										new Chart(canvasDividas.getContext('2d'), {
+											type: 'bar',
+											data: {
+												labels: dividasNaturezaLabels,
+												datasets: [{
+													label: 'Valor Pendente (Kz)',
+													data: valoresNumericos,
+													backgroundColor: '#e65c1a',
+													borderRadius: 8,
+													barThickness: 38
+												}]
+											},
+											options: {
+												indexAxis: 'y',
+												responsive: true,
+												plugins: {
+													legend: { display: false },
+													title: { display: false }
+												},
+												scales: {
+													x: {
+														beginAtZero: true,
+														grid: { color: '#eee' },
+														ticks: { color: '#e65c1a', font: { size: 16 } }
+													},
+													y: {
+														grid: { color: '#eee' },
+														ticks: { color: '#e65c1a', font: { size: 16 } }
+													}
+												}
+											}
+										});
+									}
+								});
+								</script>
 				<div style="max-width:1200px;margin:38px auto 0 auto;background:#fff;border-radius:22px;box-shadow:0 2px 16px rgba(24,119,242,0.10);padding:36px 36px 32px 36px;">
 					<h2 style="color:#1877F2;font-size:2.1rem;font-weight:700;margin-bottom:2px;">Relatório de Dívidas (Pendentes e Parciais)</h2>
 					<div style="overflow-x:auto;border-radius:22px;box-shadow:0 2px 16px rgba(24,119,242,0.10);background:#fff;margin-bottom:18px;">

@@ -210,10 +210,10 @@ class Relatorios extends Component
         $this->data_fim_grafico = '';
         $this->mesFiltro = null;
         $this->anoFiltro = null;
-        $this->mensagemFiltro = '';
+        $this->mensagemFiltro = 'Informe data de início e fim para ver o gráfico.';
+        $this->mesCorrenteLabels = [];
+        $this->mesCorrenteValores = [];
         $this->carregarResumo();
-        // Desenha um gráfico padrão com todas as despesas por natureza
-        $this->atualizarGraficoDespesas();
     }
 
     public function carregarResumo()
@@ -251,24 +251,13 @@ class Relatorios extends Component
 
     public function atualizarGraficoDespesas()
     {
-        // Caso nenhuma data seja informada, mostra o resumo completo (todas as despesas por natureza)
+        // Nenhuma data informada: mantém o gráfico sem dados e orienta o usuário
         if (!$this->data_inicio_grafico && !$this->data_fim_grafico) {
-            $movimentos = DB::table('movimentos')
-                ->select('natureza_pagamento', DB::raw('SUM(valor) as total'))
-                ->groupBy('natureza_pagamento')
-                ->orderBy('natureza_pagamento')
-                ->get();
+            $this->mesCorrenteLabels = [];
+            $this->mesCorrenteValores = [];
+            $this->mensagemFiltro = 'Informe data de início e fim para ver o gráfico.';
 
-            $labels = $movimentos->map(fn($m) => $m->natureza_pagamento ?? 'Sem natureza')->toArray();
-            $valores = $movimentos->pluck('total')->map(fn($v) => (float) $v)->toArray();
-
-            $this->mesCorrenteLabels = $labels;
-            $this->mesCorrenteValores = $valores;
-            $this->mensagemFiltro = empty($valores)
-                ? 'Nenhuma despesa cadastrada ainda para montar o gráfico.'
-                : '';
-
-            $this->dispatch('atualizar-grafico-mes-corrente', labels: $labels, valores: $valores, mensagem: $this->mensagemFiltro);
+            $this->dispatch('atualizar-grafico-mes-corrente', labels: [], valores: [], mensagem: $this->mensagemFiltro);
             return;
         }
 

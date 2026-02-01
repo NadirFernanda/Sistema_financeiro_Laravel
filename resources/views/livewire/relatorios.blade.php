@@ -32,22 +32,38 @@
 	<!-- Chart.js deve ser carregado antes de qualquer uso -->
 	   <script src="/js/chart.umd.js"></script>
 
-	   <!-- Livewire 1.x: escuta evento emitido do backend -->
+	   <!-- Escuta evento Livewire emitido do backend (Livewire 3+) -->
 
 	   <script>
 		   document.addEventListener('livewire:load', function() {
-			   Livewire.on('atualizar-grafico-natureza-total', data => {
-				   // Se vier como array, pega o primeiro elemento
-				   if (Array.isArray(data)) {
-					   data = data[0];
+			   Livewire.on('atualizar-grafico-natureza-total', (...args) => {
+				   let labels = [];
+				   let valores = [];
+				   let mensagem = '';
+
+				   if (args.length === 1) {
+					   let data = args[0];
+					   if (Array.isArray(data) && data.length === 1 && typeof data[0] === 'object') {
+						   data = data[0];
+					   }
+					   if (data && typeof data === 'object') {
+						   labels = data.labels ?? [];
+						   valores = data.valores ?? [];
+						   mensagem = data.mensagem ?? '';
+					   }
+				   } else {
+					   labels = args[0] ?? [];
+					   valores = args[1] ?? [];
+					   mensagem = args[2] ?? '';
 				   }
-				   console.log('Dados recebidos do backend:', data);
+
+				   console.log('Dados recebidos do backend (natureza):', { labels, valores, mensagem });
 				   const debugDiv = document.getElementById('debugGraficoNatureza');
 				   if (debugDiv) {
 					   debugDiv.style.display = 'block';
-					   debugDiv.innerText = 'Labels: ' + JSON.stringify(data.labels) + '\nValores: ' + JSON.stringify(data.valores);
+					   debugDiv.innerText = 'Labels: ' + JSON.stringify(labels) + '\nValores: ' + JSON.stringify(valores);
 				   }
-				   window.renderGraficoNaturezaTotalData(data.labels, data.valores);
+				   window.renderGraficoNaturezaTotalData(labels, valores);
 			   });
 		   });
 

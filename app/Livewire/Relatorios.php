@@ -6,21 +6,17 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-// Removidos imports não utilizados
 use DateTime;
-
 
 class Relatorios extends Component
 {
-    // Filtros para o gráfico de despesas por período
-    // ... já declaradas acima, remover duplicidade
     // Gráfico de dívidas por natureza
     public $dividasNaturezaLabels = [];
     public $dividasNaturezaValores = [];
     public $mensagemFiltro = '';
     public $naturezaLabels = [];
     public $naturezaValores = [];
-    // Variáveis para o gráfico de despesas do mês corrente
+    // Gráfico de despesas do mês corrente
     public $mesCorrenteLabels = [];
     public $mesCorrenteValores = [];
     public $data_inicio_grafico;
@@ -32,12 +28,11 @@ class Relatorios extends Component
     public $totalDividas = 0;
     public $modalAdicionarUsuario = false;
 
-    /**
-     * Exporta as dívidas (pendentes e parciais) para Excel
-     */
+    // ========================= EXPORTAÇÃO EXCEL =========================
+
     public function exportarExcelDividas()
     {
-        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $headers = [
             'Número', 'Empresa', 'Tipo Serviço', 'Natureza', 'Tipologia',
@@ -47,7 +42,9 @@ class Relatorios extends Component
         $sheet->fromArray($headers, null, 'A1');
 
         $row = 2;
-        $dividas = $this->dividas instanceof \Illuminate\Support\Collection ? $this->dividas->toArray() : $this->dividas;
+        $dividas = $this->dividas ?? [];
+        $dividas = $dividas instanceof \Illuminate\Support\Collection ? $dividas->toArray() : $dividas;
+
         foreach ($dividas as $d) {
             $d = (object)$d;
             $sheet->fromArray([
@@ -70,9 +67,9 @@ class Relatorios extends Component
             $row++;
         }
 
-        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
-        $fileName = 'dividas.xlsx';
+        $writer = new Xlsx($spreadsheet);
         $temp_file = tempnam(sys_get_temp_dir(), 'dividas_');
+
         try {
             $writer->save($temp_file);
         } catch (\Exception $e) {
@@ -81,78 +78,7 @@ class Relatorios extends Component
             return;
         }
 
-        return response()->download($temp_file, $fileName)->deleteFileAfterSend(true);
-    }
-    // ... todos os outros métodos permanecem dentro da classe
-
-    /**
-     * Filtra as faturas pelo status recebido (ex: 'pendente', 'parcial', 'pagas', etc)
-     */
-    public function filtrar($filtro)
-    {
-        $this->filtro = $filtro;
-        if ($filtro === 'todos') {
-            $this->faturas = DB::table('facturas')
-                ->select('*',
-                    DB::raw("COALESCE(status, 'pendente') as status"),
-                    DB::raw('(COALESCE(valor_total,0) - COALESCE(valor_pago,0)) as valor_pendente')
-                )
-                ->orderByDesc('created_at')
-                ->get();
-        } else {
-            $this->faturas = DB::table('facturas')
-                ->select('*',
-                    DB::raw("COALESCE(status, 'pendente') as status"),
-                    DB::raw('(COALESCE(valor_total,0) - COALESCE(valor_pago,0)) as valor_pendente')
-                )
-                ->whereRaw("LOWER(COALESCE(status,'pendente')) = ?", [strtolower($filtro)])
-                ->orderByDesc('created_at')
-                ->get();
-        }
-        // Atualize outros dados se necessário, como dividas, totais, etc.
-    }
-    public function filtrarDespesasPorData()
-    {
-        $this->mensagemFiltro = '[DEBUG] Método filtrarDespesasPorData chamado em ' . now();
-        // Força formato Y-m-d antes de validar
-        $dtInicio = DateTime::createFromFormat('d/m/Y', $this->data_inicio_grafico);
-        $inicio = $dtInicio ? $dtInicio->format('Y-m-d') : (is_string($this->data_inicio_grafico) && !empty($this->data_inicio_grafico) ? $this->data_inicio_grafico : now()->startOfMonth()->format('Y-m-d'));
-        $dtFim = DateTime::createFromFormat('d/m/Y', $this->data_fim_grafico);
-        $fim = $dtFim ? $dtFim->format('Y-m-d') : (is_string($this->data_fim_grafico) && !empty($this->data_fim_grafico) ? $this->data_fim_grafico : now()->endOfMonth()->format('Y-m-d'));
-        // Validação robusta
-        $this->validate([
-            'data_inicio_grafico' => 'required|date_format:Y-m-d',
-            'data_fim_grafico' => 'required|date_format:Y-m-d',
-        ]);
-        if (strtotime($inicio) > strtotime($fim)) {
-            $this->mensagemFiltro = 'Data de início maior que a data final.';
-            return;
-        }
-        $whereInicio = $inicio . ' 00:00:00';
-        $whereFim = $fim . ' 23:59:59';
-        $naturezas = DB::table('movimentos')
-            ->whereBetween('data_cadastro', [$whereInicio, $whereFim])
-            ->select('descricao', 'natureza_pagamento', DB::raw('DATE(data_cadastro) as data_cadastro'), DB::raw('SUM(valor) as total'))
-            ->groupBy('descricao', 'natureza_pagamento', DB::raw('DATE(data_cadastro)'))
-            ->orderBy('natureza_pagamento')
-            ->get();
-        $labels = $naturezas->map(function($item) {
-            return ($item->descricao ?? '') . ' - ' . ($item->natureza_pagamento ?? '') . ' - ' . ($item->data_cadastro ?? '');
-        })->toArray();
-        $valores = $naturezas->pluck('total')->map(fn($v) => (float)$v)->values()->toArray();
-        $this->naturezaLabels = $labels;
-        $this->naturezaValores = $valores;
-        if (empty($labels) || empty($valores)) {
-            $this->mensagemFiltro = 'Sem dados para o período selecionado.';
-        } else {
-            $this->mensagemFiltro = '';
-        }
-        // Dispara evento para o frontend
-        $this->dispatchBrowserEvent('atualizar-grafico-natureza-total', [
-            'labels' => $labels,
-            'valores' => $valores,
-            'mensagem' => $this->mensagemFiltro
-        ]);
+        return response()->download($temp_file, 'dividas.xlsx')->deleteFileAfterSend(true);
     }
 
     public function exportarExcel()
@@ -167,8 +93,9 @@ class Relatorios extends Component
         $sheet->fromArray($headers, null, 'A1');
 
         $row = 2;
-        // Corrigir para lidar com arrays aninhados e ausência de id
-        $faturas = $this->faturas instanceof \Illuminate\Support\Collection ? $this->faturas->toArray() : $this->faturas;
+        $faturas = $this->faturas ?? [];
+        $faturas = $faturas instanceof \Illuminate\Support\Collection ? $faturas->toArray() : $faturas;
+
         foreach ($faturas as $f) {
             $f = (object)$f;
             $sheet->fromArray([
@@ -192,8 +119,8 @@ class Relatorios extends Component
         }
 
         $writer = new Xlsx($spreadsheet);
-        $fileName = 'faturas.xlsx';
         $temp_file = tempnam(sys_get_temp_dir(), 'faturas_');
+
         try {
             $writer->save($temp_file);
         } catch (\Exception $e) {
@@ -202,12 +129,80 @@ class Relatorios extends Component
             return;
         }
 
-        return response()->download($temp_file, $fileName)->deleteFileAfterSend(true);
+        return response()->download($temp_file, 'faturas.xlsx')->deleteFileAfterSend(true);
     }
+
+    // ========================= FILTROS =========================
+
+    public function filtrar($filtro)
+    {
+        $this->filtro = $filtro;
+        $query = DB::table('facturas')
+            ->select('*',
+                DB::raw("COALESCE(status, 'pendente') as status"),
+                DB::raw('(COALESCE(valor_total,0) - COALESCE(valor_pago,0)) as valor_pendente')
+            );
+
+        if ($filtro !== 'todos') {
+            $query->whereRaw("LOWER(COALESCE(status,'pendente')) = ?", [strtolower($filtro)]);
+        }
+
+        $this->faturas = $query->orderByDesc('created_at')->get();
+    }
+
+    public function filtrarPorData()
+    {
+        $inicio = $this->formatarData($this->data_inicio_grafico, now()->startOfMonth()->format('Y-m-d'));
+        $fim = $this->formatarData($this->data_fim_grafico, now()->endOfMonth()->format('Y-m-d'));
+
+        if (strtotime($inicio) > strtotime($fim)) {
+            $this->mensagemFiltro = 'Data de início maior que a data final.';
+            return;
+        }
+
+        $this->faturas = DB::table('facturas')
+            ->select('*', DB::raw("CASE WHEN status = 'reprovada' THEN 'rejeitada' ELSE COALESCE(status, 'pendente') END as status"))
+            ->whereBetween('created_at', [$inicio, $fim])
+            ->orderByDesc('created_at')
+            ->get();
+    }
+
+    public function filtrarDespesasPorData()
+    {
+        $inicio = $this->formatarData($this->data_inicio_grafico, now()->startOfMonth()->format('Y-m-d'));
+        $fim = $this->formatarData($this->data_fim_grafico, now()->endOfMonth()->format('Y-m-d'));
+
+        if (strtotime($inicio) > strtotime($fim)) {
+            $this->mensagemFiltro = 'Data de início maior que a data final.';
+            return;
+        }
+
+        $naturezas = DB::table('movimentos')
+            ->whereBetween('data_cadastro', [$inicio . ' 00:00:00', $fim . ' 23:59:59'])
+            ->select('descricao', 'natureza_pagamento', DB::raw('DATE(data_cadastro) as data_cadastro'), DB::raw('SUM(valor) as total'))
+            ->groupBy('descricao', 'natureza_pagamento', DB::raw('DATE(data_cadastro)'))
+            ->orderBy('natureza_pagamento')
+            ->get();
+
+        $labels = $naturezas->map(fn($item) => ($item->descricao ?? '') . ' - ' . ($item->natureza_pagamento ?? '') . ' - ' . ($item->data_cadastro ?? ''))->toArray();
+        $valores = $naturezas->pluck('total')->map(fn($v) => (float)$v)->toArray();
+
+        $this->naturezaLabels = $labels;
+        $this->naturezaValores = $valores;
+        $this->mensagemFiltro = empty($valores) ? 'Sem dados para o período selecionado.' : '';
+
+        $this->dispatch('atualizar-grafico-natureza-total', labels: $labels, valores: $valores, mensagem: $this->mensagemFiltro);
+    }
+
+    public function filtrarGraficoMesCorrente()
+    {
+        $this->atualizarGraficoDespesas();
+    }
+
+    // ========================= MONTAGEM E RESUMO =========================
 
     public function mount()
     {
-        // Inicializa datas do filtro para o mês corrente
         $this->data_inicio_grafico = now()->startOfMonth()->format('Y-m-d');
         $this->data_fim_grafico = now()->endOfMonth()->format('Y-m-d');
         $this->carregarResumo();
@@ -216,133 +211,81 @@ class Relatorios extends Component
     public function carregarResumo()
     {
         Log::info('Início carregarResumo');
-        // Faturas e dívidas (sem filtro de período)
+
         $this->despesas = DB::table('movimentos')->orderBy('id')->get();
         $this->faturas = DB::table('facturas')
-            ->select('*',
-                DB::raw("COALESCE(status, 'pendente') as status"),
-                DB::raw('(COALESCE(valor_total,0) - COALESCE(valor_pago,0)) as valor_pendente')
-            )
+            ->select('*', DB::raw("COALESCE(status, 'pendente') as status"), DB::raw('(COALESCE(valor_total,0) - COALESCE(valor_pago,0)) as valor_pendente'))
             ->orderByDesc('created_at')
             ->get();
+
         $this->dividas = DB::table('facturas')
-            ->select('*',
-                DB::raw("COALESCE(status, 'pendente') as status"),
-                DB::raw('(COALESCE(valor_total,0) - COALESCE(valor_pago,0)) as valor_pendente')
-            )
+            ->select('*', DB::raw("COALESCE(status, 'pendente') as status"), DB::raw('(COALESCE(valor_total,0) - COALESCE(valor_pago,0)) as valor_pendente'))
             ->whereRaw("LOWER(COALESCE(status, 'pendente')) IN ('pendente','parcial')")
             ->orderByDesc('created_at')
             ->get();
-        $this->totalDividas = $this->dividas->sum(function($f) {
-            return (float)($f->valor_pendente ?? 0);
-        });
 
-        // Gráfico de dívidas por natureza (sem filtro de período)
+        $this->totalDividas = $this->dividas->sum(fn($f) => (float)($f->valor_pendente ?? 0));
+
         $naturezaDividas = collect($this->dividas)
-            ->groupBy(function($item) {
-                return $item->natureza ?? 'Sem Natureza';
-            })
-            ->map(function($items, $natureza) {
-                return [
-                    'natureza' => $natureza,
-                    'valor' => collect($items)->sum(function($i) { return (float)($i->valor_pendente ?? 0); })
-                ];
-            })->values();
+            ->groupBy(fn($item) => $item->natureza ?? 'Sem Natureza')
+            ->map(fn($items, $natureza) => [
+                'natureza' => $natureza,
+                'valor' => collect($items)->sum(fn($i) => (float)($i->valor_pendente ?? 0))
+            ])->values();
+
         $this->dividasNaturezaLabels = $naturezaDividas->pluck('natureza')->toArray();
         $this->dividasNaturezaValores = $naturezaDividas->pluck('valor')->toArray();
 
-        // Gráfico de despesas por período personalizado
         $this->atualizarGraficoDespesas();
         Log::info('Fim carregarResumo');
     }
-    /**
-     * Atualiza o gráfico de despesas por período personalizado
-     */
+
+    // ========================= GRÁFICO DESPESAS =========================
+
     public function atualizarGraficoDespesas()
     {
-
-        // Padroniza datas para Y-m-d antes de validar
-        $dtInicio = DateTime::createFromFormat('d/m/Y', $this->data_inicio_grafico);
-        $this->data_inicio_grafico = $dtInicio ? $dtInicio->format('Y-m-d') : (is_string($this->data_inicio_grafico) && !empty($this->data_inicio_grafico) ? $this->data_inicio_grafico : now()->startOfMonth()->format('Y-m-d'));
-        $dtFim = DateTime::createFromFormat('d/m/Y', $this->data_fim_grafico);
-        $this->data_fim_grafico = $dtFim ? $dtFim->format('Y-m-d') : (is_string($this->data_fim_grafico) && !empty($this->data_fim_grafico) ? $this->data_fim_grafico : now()->endOfMonth()->format('Y-m-d'));
-        $this->validate([
-            'data_inicio_grafico' => 'required|date',
-            'data_fim_grafico' => 'required|date',
-        ]);
-
-        $inicio = $this->data_inicio_grafico;
-        $fim = $this->data_fim_grafico;
+        $inicio = $this->formatarData($this->data_inicio_grafico, now()->startOfMonth()->format('Y-m-d'));
+        $fim = $this->formatarData($this->data_fim_grafico, now()->endOfMonth()->format('Y-m-d'));
 
         $whereInicio = $inicio . ' 00:00:00';
         $whereFim = $fim . ' 23:59:59';
 
-        // Busca despesas do período
         $movimentos = DB::table('movimentos')
             ->whereBetween('data_cadastro', [$whereInicio, $whereFim])
             ->select(DB::raw('DATE(data_cadastro) as dia'), DB::raw('SUM(valor) as total'))
             ->groupBy(DB::raw('DATE(data_cadastro)'))
             ->orderBy(DB::raw('DATE(data_cadastro)'))
             ->get()
-            ->keyBy('dia'); // chave = data para fácil lookup
+            ->keyBy('dia');
 
-        // Cria labels e valores preenchendo todos os dias do período
         $labels = [];
         $valores = [];
 
-        $periodo = new \DatePeriod(
-            new \DateTime($inicio),
-            new \DateInterval('P1D'),
-            (new \DateTime($fim))->modify('+1 day')
-        );
+        $periodo = new \DatePeriod(new \DateTime($inicio), new \DateInterval('P1D'), (new \DateTime($fim))->modify('+1 day'));
 
         foreach ($periodo as $dia) {
             $diaFormat = $dia->format('Y-m-d');
-            $labels[] = $dia->format('d/m'); // label do eixo X
-            $valores[] = $movimentos->has($diaFormat) ? (float)$movimentos->get($diaFormat)->total : 0;
+            $labels[] = $dia->format('d/m');
+            $valores[] = isset($movimentos[$diaFormat]) ? (float)($movimentos[$diaFormat]->total ?? 0) : 0;
         }
 
         $this->mesCorrenteLabels = $labels;
         $this->mesCorrenteValores = $valores;
+        $this->mensagemFiltro = array_sum($valores) == 0 ? 'Sem dados para o período selecionado.' : '';
 
-        // Mensagem de feedback
-        if (empty($valores) || array_sum($valores) == 0) {
-            $this->mensagemFiltro = 'Sem dados para o período selecionado.';
-        } else {
-            $this->mensagemFiltro = '';
+        $this->dispatch('atualizar-grafico-mes-corrente', labels: $labels, valores: $valores, mensagem: $this->mensagemFiltro);
+    }
+
+    // ========================= AUXILIAR =========================
+
+    private function formatarData($data, $fallback)
+    {
+        if (!$data) return $fallback;
+        try {
+            $dt = DateTime::createFromFormat('d/m/Y', $data);
+            return $dt ? $dt->format('Y-m-d') : $data;
+        } catch (\Exception $e) {
+            return $fallback;
         }
-
-        // Dispara evento para o frontend
-        $this->dispatchBrowserEvent('atualizar-grafico-mes-corrente', [
-            'labels' => $labels,
-            'valores' => $valores,
-            'mensagem' => $this->mensagemFiltro
-        ]);
     }
-
-    public function filtrarGraficoMesCorrente()
-    {
-        $this->atualizarGraficoDespesas();
-    }
-
-    public function filtrarPorData()
-    {
-        // Padroniza datas para Y-m-d antes de validar
-        $dtInicio = DateTime::createFromFormat('d/m/Y', $this->data_inicio_grafico);
-        $this->data_inicio_grafico = $dtInicio ? $dtInicio->format('Y-m-d') : (is_string($this->data_inicio_grafico) && !empty($this->data_inicio_grafico) ? $this->data_inicio_grafico : now()->startOfMonth()->format('Y-m-d'));
-        $dtFim = DateTime::createFromFormat('d/m/Y', $this->data_fim_grafico);
-        $this->data_fim_grafico = $dtFim ? $dtFim->format('Y-m-d') : (is_string($this->data_fim_grafico) && !empty($this->data_fim_grafico) ? $this->data_fim_grafico : now()->endOfMonth()->format('Y-m-d'));
-        $this->validate([
-            'data_inicio_grafico' => 'required|date_format:Y-m-d',
-            'data_fim_grafico' => 'required|date_format:Y-m-d',
-        ]);
-        $this->faturas = DB::table('facturas')
-            ->select('*', DB::raw(
-                "CASE WHEN status = 'reprovada' THEN 'rejeitada' ELSE COALESCE(status, 'pendente') END as status"
-            ))
-            ->whereBetween('created_at', [$this->data_inicio_grafico, $this->data_fim_grafico])
-            ->orderByDesc('created_at')
-            ->get();
-    }
-} // fecha a classe Relatorios
-
+}

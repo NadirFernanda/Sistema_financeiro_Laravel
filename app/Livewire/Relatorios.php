@@ -248,34 +248,31 @@ class Relatorios extends Component
 
     public function atualizarGraficoDespesas()
     {
-        $inicio = $this->formatarData($this->data_inicio_grafico, now()->startOfMonth()->format('Y-m-d'));
-        $fim = $this->formatarData($this->data_fim_grafico, now()->endOfMonth()->format('Y-m-d'));
+        $mes = $this->mesFiltro ?: (int) now()->format('m');
+        $ano = $this->anoFiltro ?: (int) now()->format('Y');
 
-        $whereInicio = $inicio . ' 00:00:00';
-        $whereFim = $fim . ' 23:59:59';
+        $inicio = now()->setDate($ano, $mes, 1)->startOfMonth();
+        $fim = (clone $inicio)->endOfMonth();
+
+        $this->data_inicio_grafico = $inicio->format('Y-m-d');
+        $this->data_fim_grafico = $fim->format('Y-m-d');
 
         $movimentos = DB::table('movimentos')
-            ->whereBetween('data_cadastro', [$whereInicio, $whereFim])
-            ->select(DB::raw('DATE(data_cadastro) as dia'), DB::raw('SUM(valor) as total'))
-            ->groupBy(DB::raw('DATE(data_cadastro)'))
-            ->orderBy(DB::raw('DATE(data_cadastro)'))
-            ->get()
-            ->keyBy('dia');
+            ->whereBetween('data_cadastro', [
+                $inicio->format('Y-m-d 00:00:00'),
+                $fim->format('Y-m-d 23:59:59'),
+            ])
+            ->select('natureza_pagamento', DB::raw('SUM(valor) as total'))
+            ->groupBy('natureza_pagamento')
+            ->orderBy('natureza_pagamento')
+            ->get();
 
-        $labels = [];
-        $valores = [];
-
-        $periodo = new \DatePeriod(new \DateTime($inicio), new \DateInterval('P1D'), (new \DateTime($fim))->modify('+1 day'));
-
-        foreach ($periodo as $dia) {
-            $diaFormat = $dia->format('Y-m-d');
-            $labels[] = $dia->format('d/m');
-            $valores[] = isset($movimentos[$diaFormat]) ? (float)($movimentos[$diaFormat]->total ?? 0) : 0;
-        }
+        $labels = $movimentos->map(fn($m) => $m->natureza_pagamento ?? 'Sem natureza')->toArray();
+        $valores = $movimentos->pluck('total')->map(fn($v) => (float) $v)->toArray();
 
         $this->mesCorrenteLabels = $labels;
         $this->mesCorrenteValores = $valores;
-        $this->mensagemFiltro = array_sum($valores) == 0 ? 'Sem dados para o período selecionado.' : '';
+        $this->mensagemFiltro = empty($valores) ? 'Sem dados para o período selecionado.' : '';
 
         $this->dispatch('atualizar-grafico-mes-corrente', labels: $labels, valores: $valores, mensagem: $this->mensagemFiltro);
     }

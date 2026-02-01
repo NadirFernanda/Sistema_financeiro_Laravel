@@ -6,7 +6,7 @@
 	</div>
 	   <!-- Gráfico de Despesas do Mês Corrente (com filtro de período) -->
 	   <div style="width:100%;background:#fff;border-radius:18px;margin-bottom:24px;padding:32px 18px 24px 18px;box-shadow:0 2px 16px rgba(24,119,242,0.07);">
-		   <h2 style="color:#0074D9;font-size:2.1rem;font-weight:700;margin-bottom:8px;text-align:left;">Gráfico de Despesas por Dia</h2>
+		   <h2 style="color:#0074D9;font-size:2.1rem;font-weight:700;margin-bottom:8px;text-align:left;">Gráfico de Despesas por Natureza</h2>
 		   <div style="display:flex;gap:12px;align-items:center;margin-bottom:18px;">
 			   <label for="mesFiltro" style="font-weight:600;">Mês:</label>
 			   <select id="mesFiltro" wire:model="mesFiltro" style="padding:4px 10px;border-radius:8px;border:1px solid #ccc;">
@@ -22,7 +22,7 @@
 			   </select>
 			   <button wire:click="filtrarGraficoMesCorrente" class="btn" style="background:#1877F2;color:#fff;font-weight:600;padding:4px 18px;border-radius:8px;">Filtrar</button>
 		   </div>
-		   <h3 style="color:#1877F2;font-size:1.2rem;font-weight:700;margin-bottom:18px;text-align:left;">Despesas por Dia ({{ sprintf('%02d', $mesFiltro) }}/{{ $anoFiltro }})</h3>
+		   <h3 style="color:#1877F2;font-size:1.2rem;font-weight:700;margin-bottom:18px;text-align:left;">Despesas por Natureza ({{ sprintf('%02d', $mesFiltro) }}/{{ $anoFiltro }})</h3>
 		   <div style="width:100%;min-height:220px;background:#f4f6fa;border-radius:16px;margin-bottom:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
 			   <canvas id="graficoMesCorrente" style="max-width:900px;width:100%;height:220px;"></canvas>
 			   <div id="debugGraficoMesCorrente" style="margin-top:12px;color:#e65c1a;font-size:0.98rem;background:#fffbe6;padding:8px 16px;border-radius:8px;max-width:900px;width:100%;word-break:break-all;display:none;"></div>
@@ -384,7 +384,7 @@
 			const debugDivMes = document.getElementById('debugGraficoMesCorrente');
 			if (debugDivMes) {
 				debugDivMes.style.display = 'block';
-				debugDivMes.innerText = 'Natureza: ' + JSON.stringify(mesCorrenteLabels) + '\nValores: ' + JSON.stringify(mesCorrenteValores);
+				debugDivMes.innerText = 'Naturezas: ' + JSON.stringify(mesCorrenteLabels) + '\nValores: ' + JSON.stringify(mesCorrenteValores);
 			}
 			if (canvasMes) {
 				const valoresNumericos = Array.isArray(mesCorrenteValores) ? mesCorrenteValores.map(v => Number(v)) : [];
@@ -396,7 +396,7 @@
 					ctx.font = '18px Arial';
 					ctx.fillStyle = '#e65c1a';
 					ctx.textAlign = 'center';
-					ctx.fillText('Nenhum dado disponível para o mês corrente.', canvasMes.width / 2, canvasMes.height / 2);
+					ctx.fillText('Nenhum dado disponível para o mês selecionado.', canvasMes.width / 2, canvasMes.height / 2);
 					ctx.restore();
 				} else {
 					new Chart(canvasMes.getContext('2d'), {
@@ -404,7 +404,7 @@
 						data: {
 							labels: mesCorrenteLabels,
 							datasets: [{
-								label: 'Total Diário (Kz)',
+								label: 'Total por Natureza (Kz)',
 								data: valoresNumericos,
 								backgroundColor: '#00BFFF',
 								borderRadius: 8,

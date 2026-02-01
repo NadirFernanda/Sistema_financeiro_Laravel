@@ -357,29 +357,41 @@
 			}
 			if (canvasMes) {
 				const valoresNumericos = Array.isArray(mesCorrenteValores) ? mesCorrenteValores.map(v => Number(v)) : [];
-				new Chart(canvasMes.getContext('2d'), {
-					type: 'bar',
-					data: {
-						labels: mesCorrenteLabels,
-						datasets: [{
-							label: 'Total Diário (Kz)',
-							data: valoresNumericos,
-							backgroundColor: '#00BFFF',
-							borderRadius: 8,
-							barThickness: 28
-						}]
-					},
-					options: {
-						indexAxis: 'x',
-						plugins: {
-							legend: { display: true },
-							title: { display: false }
+				if (!Array.isArray(mesCorrenteLabels) || mesCorrenteLabels.length === 0 || !Array.isArray(valoresNumericos) || valoresNumericos.length === 0) {
+					// Exibe mensagem no canvas
+					const ctx = canvasMes.getContext('2d');
+					ctx.save();
+					ctx.clearRect(0, 0, canvasMes.width, canvasMes.height);
+					ctx.font = '18px Arial';
+					ctx.fillStyle = '#e65c1a';
+					ctx.textAlign = 'center';
+					ctx.fillText('Nenhum dado disponível para o mês corrente.', canvasMes.width / 2, canvasMes.height / 2);
+					ctx.restore();
+				} else {
+					new Chart(canvasMes.getContext('2d'), {
+						type: 'bar',
+						data: {
+							labels: mesCorrenteLabels,
+							datasets: [{
+								label: 'Total Diário (Kz)',
+								data: valoresNumericos,
+								backgroundColor: '#00BFFF',
+								borderRadius: 8,
+								barThickness: 28
+							}]
 						},
-						scales: {
-							y: { beginAtZero: true }
+						options: {
+							indexAxis: 'x',
+							plugins: {
+								legend: { display: true },
+								title: { display: false }
+							},
+							scales: {
+								y: { beginAtZero: true }
+							}
 						}
-					}
-				});
+					});
+				}
 			}
 			});
 			</script>

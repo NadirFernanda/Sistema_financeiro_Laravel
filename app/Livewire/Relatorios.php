@@ -163,7 +163,11 @@ class Relatorios extends Component
         }
 
         $this->faturas = DB::table('facturas')
-            ->select('*', DB::raw("CASE WHEN status = 'reprovada' THEN 'rejeitada' ELSE COALESCE(status, 'pendente') END as status"))
+            ->select(
+                '*',
+                DB::raw("CASE WHEN status = 'reprovada' THEN 'rejeitada' ELSE COALESCE(status, 'pendente') END as status"),
+                DB::raw('(COALESCE(valor_total,0) - COALESCE(valor_pago,0)) as valor_pendente')
+            )
             ->whereBetween('created_at', [$inicio, $fim])
             ->orderByDesc('created_at')
             ->get();

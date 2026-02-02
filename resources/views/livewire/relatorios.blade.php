@@ -119,7 +119,7 @@
             <a href="#" wire:click.prevent="filtrar('todos')" class="relatorio-filtro-link {{ $filtro === 'todos' ? 'ativo' : '' }}" style="font-size:1.18rem;">Todas</a>
             <a href="#" wire:click.prevent="filtrar('pendente')" class="relatorio-filtro-link {{ $filtro === 'pendente' ? 'ativo' : '' }}" style="font-size:1.18rem;">Pendentes</a>
             <a href="#" wire:click.prevent="filtrar('parcial')" class="relatorio-filtro-link {{ $filtro === 'parcial' ? 'ativo' : '' }}" style="font-size:1.18rem;">Parciais</a>
-            <a href="#" wire:click.prevent="filtrar('paga')" class="relatorio-filtro-link {{ $filtro === 'paga' ? 'ativo' : '' }}" style="font-size:1.18rem;">Pagas</a>
+            <a href="#" wire:click.prevent="filtrar('pago')" class="relatorio-filtro-link {{ $filtro === 'pago' ? 'ativo' : '' }}" style="font-size:1.18rem;">Pagas</a>
             <a href="#" wire:click.prevent="filtrar('aprovada')" class="relatorio-filtro-link {{ $filtro === 'aprovada' ? 'ativo' : '' }}" style="font-size:1.18rem;">Aprovadas</a>
             <a href="#" wire:click.prevent="filtrar('reprovada')" class="relatorio-filtro-link {{ $filtro === 'reprovada' ? 'ativo' : '' }}" style="font-size:1.18rem;">Reprovadas</a>
             <a href="#" wire:click.prevent="filtrar('revisao')" class="relatorio-filtro-link {{ $filtro === 'revisao' ? 'ativo' : '' }}" style="font-size:1.18rem;">Revisão</a>
@@ -154,9 +154,9 @@
                                 <td>{{ $f->tipologia ?? '' }}</td>
                                 <td>{{ $f->data_execucao ?? $f->data_entrada ?? '' }}</td>
                                 <td>{{ $f->data_pagamento ?? '' }}</td>
-                                <td>{{ $f->valor_total ?? '' }}</td>
-                                <td>{{ $f->valor_pago ?? '' }}</td>
-                                <td>{{ $f->valor_pendente ?? '' }}</td>
+                                <td>{{ number_format($f->valor_total ?? 0, 2, ',', '.') }}</td>
+                                <td>{{ number_format($f->valor_pago ?? 0, 2, ',', '.') }}</td>
+                                <td>{{ number_format($f->valor_pendente ?? 0, 2, ',', '.') }}</td>
                                 <td>{{ $f->observacoes ?? '' }}</td>
                                 <td>{{ $f->arquivo ?? '' }}</td>
                                 <td>{{ $f->status ?? '' }}</td>

@@ -15,6 +15,15 @@ class Movimentos extends Component
     {
         if ($value === 'entrada') {
             $this->factura_id = null;
+            $this->resetErrorBag('factura_id');
+        }
+    }
+
+    // Quando o usuário seleciona uma fatura, removemos a mensagem de erro imediatamente
+    public function updatedFacturaId($value)
+    {
+        if (!empty($value)) {
+            $this->resetErrorBag('factura_id');
         }
     }
 
@@ -105,7 +114,10 @@ class Movimentos extends Component
 
     public function salvarMovimento()
     {
-        // Corrigir: se factura_id for vazio, definir como null
+        // Se vier string vazia, normaliza para null
+        if ($this->factura_id === '') {
+            $this->factura_id = null;
+        }
         $rules = [
             'empresa' => 'required|string',
             'descricao' => 'required|string',

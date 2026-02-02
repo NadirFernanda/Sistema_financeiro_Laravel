@@ -100,11 +100,11 @@
                 @error('tipo') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
 
-            {{-- SÓ MOSTRA SE FOR SAÍDA --}}
+            {{-- Só mostra o campo de fatura quando for Saída --}}
             @if ($tipo === 'saida')
                 <div class="col-md-3">
                     <select class="form-select" wire:model.defer="factura_id">
-                        <option value="">Selecione a Fatura</option>
+                        <option value="">Selecione a Fatura (obrigatória para Saída)</option>
                         @foreach ($facturas as $fatura)
                             <option value="{{ $fatura->id }}">{{ $fatura->numero_factura }} - {{ $fatura->empresa_nome }}</option>
                         @endforeach

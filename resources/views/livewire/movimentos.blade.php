@@ -100,15 +100,18 @@
                 @error('tipo') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
 
-            <div class="col-md-3">
-                <select class="form-select" wire:model.defer="factura_id">
-                    <option value="">Selecione a Fatura (opcional)</option>
-                    @foreach ($facturas as $fatura)
-                        <option value="{{ $fatura->id }}">{{ $fatura->numero_factura }} - {{ $fatura->empresa_nome }}</option>
-                    @endforeach
-                </select>
-                @error('factura_id') <span class="text-danger">{{ $message }}</span> @enderror
-            </div>
+            {{-- Campo de fatura só aparece quando o tipo é Saída --}}
+            @if ($tipo === 'saida')
+                <div class="col-md-3">
+                    <select class="form-select" wire:model.defer="factura_id">
+                        <option value="">Selecione a Fatura (obrigatória para Saída)</option>
+                        @foreach ($facturas as $fatura)
+                            <option value="{{ $fatura->id }}">{{ $fatura->numero_factura }} - {{ $fatura->empresa_nome }}</option>
+                        @endforeach
+                    </select>
+                    @error('factura_id') <span class="text-danger">{{ $message }}</span> @enderror
+                </div>
+            @endif
             <div class="col-md-2">
                 <button type="submit" class="btn btn-primary w-100">
                     {{ $modoEdicao ? 'Atualizar' : 'Cadastrar' }}

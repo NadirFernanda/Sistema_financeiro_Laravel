@@ -103,7 +103,7 @@
             {{-- Campo de fatura só aparece quando o tipo é Saída --}}
             @if ($tipo === 'saida')
                 <div class="col-md-3">
-                    <select class="form-select" wire:model.defer="factura_id">
+                    <select class="form-select" wire:model.live="factura_id">
                         <option value="">Selecione a Fatura (obrigatória para Saída)</option>
                         @foreach ($facturas as $fatura)
                             <option value="{{ $fatura->id }}">{{ $fatura->numero_factura }} - {{ $fatura->empresa_nome }}</option>

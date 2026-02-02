@@ -59,7 +59,6 @@ class Movimentos extends Component
         'fonte_financiamento.required' => 'O campo Fonte de Financiamento é obrigatório.',
         'data_cadastro.required' => 'O campo Data de Cadastro é obrigatório.',
         'tipo.required' => 'O campo Tipo é obrigatório.',
-        'factura_id.required' => 'O campo Fatura é obrigatório.',
         'factura_id.exists' => 'A fatura selecionada não existe.',
     ];
     public $movimentos = [];
@@ -126,7 +125,8 @@ class Movimentos extends Component
             'fonte_financiamento' => 'required|string',
             'data_cadastro' => 'required|date',
             'tipo' => 'required|in:entrada,saida',
-            'factura_id' => $this->tipo === 'saida' ? 'required|exists:facturas,id' : 'nullable',
+            // Associação da fatura é opcional; se informada, deve existir
+            'factura_id' => 'nullable|exists:facturas,id',
         ];
         $this->validate($rules, $this->messages);
 

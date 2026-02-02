@@ -80,13 +80,13 @@
                                 <td>{{ $f->empresa_nome ?? '' }}</td>
                                 <td>{{ $f->tipo_servico ?? '' }}</td>
                                 <td>{{ $f->natureza ?? '' }}</td>
-                                <td>{{ number_format($f->valor_pendente ?? 0, 2, ',', '.') }}</td>
+                                <td>{{ number_format($f->valor_pendente ?? 0, 2, ',', '.') }} Kz</td>
                                 <td>{{ ucfirst($f->status ?? '') }}</td>
                             </tr>
                         @endforeach
                         <tr style="background:#f4f6fa;font-weight:700;">
                             <td colspan="3" style="text-align:right;">Total da Dívida:</td>
-                            <td style="color:#e65c1a;">{{ number_format($totalDividas, 2, ',', '.') }}</td>
+                            <td style="color:#e65c1a;">{{ number_format($totalDividas, 2, ',', '.') }} Kz</td>
                             <td></td>
                         </tr>
                     @else
@@ -154,9 +154,9 @@
                                 <td>{{ $f->tipologia ?? '' }}</td>
                                 <td>{{ $f->data_execucao ?? $f->data_entrada ?? '' }}</td>
                                 <td>{{ $f->data_pagamento ?? '' }}</td>
-                                <td>{{ number_format($f->valor_total ?? 0, 2, ',', '.') }}</td>
-                                <td>{{ number_format($f->valor_pago ?? 0, 2, ',', '.') }}</td>
-                                <td>{{ number_format($f->valor_pendente ?? 0, 2, ',', '.') }}</td>
+                                <td>{{ number_format($f->valor_total ?? 0, 2, ',', '.') }} Kz</td>
+                                <td>{{ number_format($f->valor_pago ?? 0, 2, ',', '.') }} Kz</td>
+                                <td>{{ number_format($f->valor_pendente ?? 0, 2, ',', '.') }} Kz</td>
                                 <td>{{ $f->observacoes ?? '' }}</td>
                                 <td>{{ $f->arquivo ?? '' }}</td>
                                 <td>{{ $f->status ?? '' }}</td>

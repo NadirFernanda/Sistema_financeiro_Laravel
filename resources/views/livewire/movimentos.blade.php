@@ -103,7 +103,7 @@
             {{-- SÓ MOSTRA SE FOR SAÍDA --}}
             @if ($tipo === 'saida')
                 <div class="col-md-3">
-                    <select class="form-select" wire:model="factura_id">
+                    <select class="form-select" wire:model.defer="factura_id">
                         <option value="">Selecione a Fatura</option>
                         @foreach ($facturas as $fatura)
                             <option value="{{ $fatura->id }}">{{ $fatura->numero_factura }} - {{ $fatura->empresa_nome }}</option>

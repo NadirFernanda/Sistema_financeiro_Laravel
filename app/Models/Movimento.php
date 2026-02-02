@@ -23,6 +23,7 @@ class Movimento extends Model
 
     public function factura()
     {
-        return $this->belongsTo(Factura::class, 'factura_id');
+		// Liga o movimento à fatura usando o número da fatura como chave
+		return $this->belongsTo(Factura::class, 'factura_id', 'numero_factura');
     }
 }

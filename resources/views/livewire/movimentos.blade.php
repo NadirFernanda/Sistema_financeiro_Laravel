@@ -106,7 +106,7 @@
                     <select class="form-select" wire:model.live="factura_id">
                         <option value="">Selecione a Fatura (obrigatória para Saída)</option>
                         @foreach ($facturas as $fatura)
-                            <option value="{{ $fatura->id }}">{{ $fatura->numero_factura }} - {{ $fatura->empresa_nome }}</option>
+                            <option value="{{ $fatura->numero_factura }}">{{ $fatura->numero_factura }} - {{ $fatura->empresa_nome }}</option>
                         @endforeach
                     </select>
                     @error('factura_id') <span class="text-danger">{{ $message }}</span> @enderror

@@ -131,7 +131,7 @@ class Movimentos extends Component
             'data_cadastro' => 'required|date',
             'tipo' => 'required|in:entrada,saida',
             // Para saída é obrigatório ter fatura; para entrada é sempre nulo
-            'factura_id' => $this->tipo === 'saida' ? 'required|exists:facturas,id' : 'nullable',
+            'factura_id' => $this->tipo === 'saida' ? 'required|exists:facturas,numero_factura' : 'nullable',
         ];
         $this->validate($rules, $this->messages);
 

@@ -7,7 +7,8 @@ use Livewire\Component;
 use App\Models\Usuario;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use App\Notifications\UsuarioInitialPasswordNotification;
+use Illuminate\Support\Facades\Password;
+use App\Notifications\UsuarioResetPasswordNotification;
 
 class Usuarios extends Component
 {
@@ -87,20 +88,21 @@ class Usuarios extends Component
                 $usuario->update($validated);
                 $this->successMessage = 'Usuário atualizado com sucesso!';
             } else {
-                    $plainPassword = $this->generateStrongPassword(16);
-
+					// Cria o usuário sem senha definida e envia link para ele escolher a própria senha
                 $usuario = Usuario::create([
                     'nome' => $validated['nome'],
                     'email' => $validated['email'],
                     'role' => $validated['role'],
-                    'senha' => bcrypt($plainPassword),
+                    'senha' => bcrypt(Str::random(32)), // senha temporária forte que será trocada
                 ]);
 
                 try {
-                    $usuario->notify(new UsuarioInitialPasswordNotification($plainPassword));
-                    $this->successMessage = 'Usuário criado com sucesso! A senha de acesso foi enviada por e-mail.';
+                    // Gera um token de reset no broker "usuarios" e envia notificação com link para definir senha
+                    $token = Password::broker('usuarios')->createToken($usuario);
+                    $usuario->notify(new UsuarioResetPasswordNotification($token));
+                    $this->successMessage = 'Usuário criado com sucesso! Um e-mail foi enviado para que ele defina a própria senha.';
                 } catch (\Exception $e) {
-                    $this->successMessage = 'Usuário criado com sucesso, mas houve um erro ao enviar o e-mail com a senha.';
+                    $this->successMessage = 'Usuário criado com sucesso, mas houve um erro ao enviar o e-mail para definição da senha.';
                 }
             }
             $this->resetForm();
@@ -108,28 +110,6 @@ class Usuarios extends Component
         } catch (\Exception $e) {
             $this->errorMessage = 'Erro ao salvar usuário.';
         }
-    }
-    
-    protected function generateStrongPassword(int $length = 16): string
-    {
-        $upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $lower = 'abcdefghijklmnopqrstuvwxyz';
-        $digits = '0123456789';
-        $symbols = '!@#$%^&*()-_=+[]{}<>?';
-
-        $all = $upper . $lower . $digits . $symbols;
-
-        $password = '';
-        $password .= $upper[random_int(0, strlen($upper) - 1)];
-        $password .= $lower[random_int(0, strlen($lower) - 1)];
-        $password .= $digits[random_int(0, strlen($digits) - 1)];
-        $password .= $symbols[random_int(0, strlen($symbols) - 1)];
-
-        for ($i = strlen($password); $i < $length; $i++) {
-            $password .= $all[random_int(0, strlen($all) - 1)];
-        }
-
-        return str_shuffle($password);
     }
 
     public function edit($id)

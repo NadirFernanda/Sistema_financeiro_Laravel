@@ -28,16 +28,15 @@ class SetPasswordController extends Controller
             'password' => [
                 'required',
                 'confirmed',
-                PasswordRule::min(14)
-                    ->mixedCase()
+                // Regra mais simples: mínimo 8 caracteres, com letras e números
+                PasswordRule::min(8)
                     ->letters()
-                    ->numbers()
-                    ->symbols(),
+                    ->numbers(),
             ],
         ], [
             'password.required' => 'A senha é obrigatória.',
             'password.confirmed' => 'A confirmação da senha não coincide.',
-            'password.min' => 'A senha deve ter pelo menos 14 caracteres.',
+            'password.min' => 'A senha deve ter pelo menos 8 caracteres.',
         ]);
 
         $status = Password::broker('usuarios')->reset(

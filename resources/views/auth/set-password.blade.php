@@ -47,9 +47,8 @@
                 <input id="password" type="password" name="password" required
                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                 <p class="mt-1 text-xs text-gray-600">
-                    A senha deve ter <strong>no mínimo 14 caracteres</strong> e conter
-                    <strong>letras maiúsculas</strong>, <strong>letras minúsculas</strong>,
-                    <strong>números</strong> e <strong>símbolos</strong> (por exemplo: ! @ # $ %).
+                    A senha deve ter <strong>no mínimo 8 caracteres</strong> e conter
+                    pelo menos <strong>letras</strong> e <strong>números</strong>.
                 </p>
             </div>
 

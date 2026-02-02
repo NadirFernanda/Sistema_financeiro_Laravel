@@ -93,7 +93,7 @@
                 @error('data_cadastro') <span class="text-danger">{{ $message }}</span> @enderror
             </div>
             <div class="col-md-2">
-                <select class="form-select" wire:model="tipo">
+                <select class="form-select" wire:model.live="tipo">
                     <option value="entrada">Entrada</option>
                     <option value="saida">Saída</option>
                 </select>

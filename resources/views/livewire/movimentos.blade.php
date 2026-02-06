@@ -165,10 +165,10 @@
                         <td style="font-weight:600;color:#1877F2;">Kz {{ number_format($mov->valor, 2, ',', '.') }}</td>
                         <td><span class="badge" style="background:#e9eef6;color:#1877F2;font-size:0.97rem;font-weight:600;">{{ $mov->fonte_financiamento }}</span></td>
                         <td>
-                            @if($mov->factura)
+                            @if($mov->factura && $mov->factura->id && $mov->factura->numero_factura)
                                 <a href="{{ route('facturas.show', $mov->factura->id) }}" target="_blank" style="color:#1877F2;text-decoration:underline;font-weight:500;">{{ $mov->factura->numero_factura }}</a>
                             @else
-                                <span style="color:#bbb;">-</span>
+                                <span class="text-danger">Sem fatura</span>
                             @endif
                         </td>
                         <td>{{ \Carbon\Carbon::parse($mov->data_cadastro)->format('d/m/Y H:i') }}</td>

@@ -23,6 +23,7 @@ Route::get('/faturas', function () {
 Route::get('/definir-senha/{token}', [SetPasswordController::class, 'showForm'])->name('password.reset');
 Route::post('/definir-senha', [SetPasswordController::class, 'setPassword'])->name('password.update');
 
+
 Route::middleware('auth')->group(function () {
     Route::get('/usuarios', function () {
         return view('usuarios');
@@ -33,6 +34,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/movimentos', function () {
         return view('movimentos');
     })->name('movimentos');
+
+    // Rota para exibir fatura individual (corrige erro de parâmetro ausente)
+    Route::get('/faturas/{factura}', function ($factura) {
+        // Aqui você pode buscar a fatura pelo ID e passar para a view
+        $fatura = \App\Models\Factura::findOrFail($factura);
+        return view('fatura-show', compact('fatura'));
+    })->name('facturas.show');
 });
 
 Route::get('/', function () {

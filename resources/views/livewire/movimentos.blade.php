@@ -168,11 +168,7 @@
                             @if($mov->tipo === 'entrada')
                                 —
                             @elseif($mov->tipo === 'saida')
-                                @if($mov->factura && $mov->factura->id && $mov->factura->numero_factura)
-                                    <a href="{{ route('facturas.show', $mov->factura->id) }}" target="_blank" style="color:#1877F2;text-decoration:underline;font-weight:500;">{{ $mov->factura->numero_factura }}</a>
-                                @else
-                                    —
-                                @endif
+                                {{ $mov->factura->numero_factura ?? '—' }}
                             @else
                                 —
                             @endif

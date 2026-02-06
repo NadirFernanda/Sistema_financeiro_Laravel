@@ -97,7 +97,7 @@ class Movimentos extends Component
 
     public function carregarMovimentos()
     {
-        $query = Movimento::query();
+        $query = Movimento::with('factura');
         if ($this->data_inicio && $this->data_fim) {
             $query->whereBetween('data_cadastro', [$this->data_inicio, $this->data_fim]);
         }

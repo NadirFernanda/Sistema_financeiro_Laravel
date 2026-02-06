@@ -35,12 +35,7 @@ Route::middleware('auth')->group(function () {
         return view('movimentos');
     })->name('movimentos');
 
-    // Rota para exibir fatura individual (corrige erro de parâmetro ausente)
-    Route::get('/faturas/{factura}', function ($factura) {
-        // Aqui você pode buscar a fatura pelo ID e passar para a view
-        $fatura = \App\Models\Factura::findOrFail($factura);
-        return view('fatura-show', compact('fatura'));
-    })->name('facturas.show');
+    // Rota para exibir fatura individual removida para evitar conflito de nomes
 });
 
 Route::get('/', function () {

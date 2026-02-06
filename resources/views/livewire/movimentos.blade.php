@@ -165,8 +165,14 @@
                         <td style="font-weight:600;color:#1877F2;">Kz {{ number_format($mov->valor, 2, ',', '.') }}</td>
                         <td><span class="badge" style="background:#e9eef6;color:#1877F2;font-size:0.97rem;font-weight:600;">{{ $mov->fonte_financiamento }}</span></td>
                         <td>
-                            @if($mov->factura && $mov->factura->id && $mov->factura->numero_factura)
-                                <a href="{{ route('facturas.show', $mov->factura->id) }}" target="_blank" style="color:#1877F2;text-decoration:underline;font-weight:500;">{{ $mov->factura->numero_factura }}</a>
+                            @if($mov->tipo === 'entrada')
+                                —
+                            @elseif($mov->tipo === 'saida')
+                                @if($mov->factura && $mov->factura->id && $mov->factura->numero_factura)
+                                    <a href="{{ route('facturas.show', $mov->factura->id) }}" target="_blank" style="color:#1877F2;text-decoration:underline;font-weight:500;">{{ $mov->factura->numero_factura }}</a>
+                                @else
+                                    —
+                                @endif
                             @else
                                 —
                             @endif

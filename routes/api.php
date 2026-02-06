@@ -27,7 +27,7 @@ Route::post('facturas/{id}/rejeitar', [FacturaController::class, 'rejeitar']);
 Route::post('facturas/{id}/revisar', [FacturaController::class, 'revisar']);
 // Rotas de usuários e faturas (CRUD)
 Route::apiResource('usuarios', UserController::class);
-Route::apiResource('facturas', FacturaController::class);
+Route::apiResource('facturas', FacturaController::class)->names('api.facturas');
 // Rota de login
 Route::post('/login', [AuthController::class, 'login']);
 

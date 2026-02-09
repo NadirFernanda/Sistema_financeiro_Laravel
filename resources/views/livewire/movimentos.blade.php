@@ -17,7 +17,7 @@
         <div class="col-md-3" style="min-width:260px;">
             <div style="background:#f4faff;border-radius:18px;padding:28px 24px;box-shadow:0 2px 12px rgba(24,119,242,0.08);display:flex;flex-direction:column;align-items:flex-start;">
                 <span style="color:#e74c3c;font-weight:600;font-size:1.1rem;">Saídas</span>
-                <span style="color:#1877F2;font-size:2rem;font-weight:700;">Kz {{ number_format($total_saidas, 2, ',', '.') }}</span>
+                <span style="color:#1877F2;font-size:2rem;font-weight:700;">Kz {{ number_format(-$total_saidas, 2, ',', '.') }}</span>
             </div>
         </div>
         <div class="col-md-3" style="min-width:260px;">

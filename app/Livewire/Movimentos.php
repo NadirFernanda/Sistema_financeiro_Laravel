@@ -118,8 +118,8 @@ class Movimentos extends Component
         if ($this->factura_id === '') {
             $this->factura_id = null;
         }
-        // SAÍDA nunca pode ter fatura vinculada
-        if ($this->tipo === 'saida') {
+        // ENTRADA nunca pode ter fatura vinculada
+        if ($this->tipo === 'entrada') {
             $this->factura_id = null;
         }
         $rules = [
@@ -130,8 +130,8 @@ class Movimentos extends Component
             'fonte_financiamento' => 'required|string',
             'data_cadastro' => 'required|date',
             'tipo' => 'required|in:entrada,saida',
-            // Para ENTRADA é obrigatório ter fatura; para SAÍDA é sempre nulo
-            'factura_id' => $this->tipo === 'entrada' ? 'required|exists:facturas,numero_factura' : 'nullable',
+            // Para SAÍDA é obrigatório ter fatura; para ENTRADA é sempre nulo
+            'factura_id' => $this->tipo === 'saida' ? 'required|exists:facturas,numero_factura' : 'nullable',
         ];
         $this->validate($rules, $this->messages);
 

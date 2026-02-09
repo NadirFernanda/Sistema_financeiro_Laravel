@@ -24,12 +24,7 @@
                 </select>
                 @error('role') <span class="text-danger small">{{ $message }}</span> @enderror
             </div>
-            <div class="col-md-3">
-                <input type="password" class="form-control" placeholder="Senha (opcional)" wire:model.defer="senha">
-                <div class="small text-muted">Deixe em branco para enviar link de definição de senha.</div>
-                @error('senha') <span class="text-danger small">{{ $message }}</span> @enderror
-            </div>
-            <div class="col-md-1 d-flex align-items-end">
+            <div class="col-md-2 d-flex align-items-end">
                 <button type="submit" class="btn btn-success w-100">{{ $isEdit ? 'Atualizar' : 'Salvar' }}</button>
             </div>
         </div>

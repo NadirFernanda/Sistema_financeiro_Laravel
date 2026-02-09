@@ -81,7 +81,6 @@ class Usuarios extends Component
                 Rule::unique('usuarios', 'email')->ignore($this->usuario_id),
             ],
             'role' => $this->rules['role'],
-            'senha' => 'nullable|string|min:6',
         ];
 
         $validated = $this->validate($rules, $this->messages);
@@ -90,39 +89,22 @@ class Usuarios extends Component
             if ($this->isEdit && $this->usuario_id) {
                 $usuario = Usuario::find($this->usuario_id);
                 $usuario->update($validated);
-                // Se foi informada uma senha manual, atualiza-a
-                if (!empty($this->senha)) {
-                    $usuario->senha = bcrypt($this->senha);
-                    $usuario->save();
-                }
                 $this->successMessage = 'Usuário atualizado com sucesso!';
             } else {
-                // Se o admin informou uma senha manual, usa-a; caso contrário gera senha temporária e envia link de definição
-                if (!empty($this->senha)) {
-                    $senhaParaSalvar = bcrypt($this->senha);
-                    $usuario = Usuario::create([
-                        'nome' => $validated['nome'],
-                        'email' => $validated['email'],
-                        'role' => $validated['role'],
-                        'senha' => $senhaParaSalvar,
-                    ]);
-                    $this->successMessage = 'Usuário criado com sucesso com a senha definida manualmente.';
-                } else {
-                    $usuario = Usuario::create([
-                        'nome' => $validated['nome'],
-                        'email' => $validated['email'],
-                        'role' => $validated['role'],
-                        'senha' => bcrypt(Str::random(32)), // senha temporária forte que será trocada
-                    ]);
+                // Sempre criar usuário com senha temporária e enviar link para o próprio usuário definir a senha
+                $usuario = Usuario::create([
+                    'nome' => $validated['nome'],
+                    'email' => $validated['email'],
+                    'role' => $validated['role'],
+                    'senha' => bcrypt(Str::random(32)), // senha temporária forte que será trocada pelo usuário
+                ]);
 
-                    try {
-                        // Gera um token de reset no broker "usuarios" e envia notificação com link para definir senha
-                        $token = Password::broker('usuarios')->createToken($usuario);
-                        $usuario->notify(new UsuarioResetPasswordNotification($token));
-                        $this->successMessage = 'Usuário criado com sucesso! Um e-mail foi enviado para que ele defina a própria senha.';
-                    } catch (\Exception $e) {
-                        $this->successMessage = 'Usuário criado com sucesso, mas houve um erro ao enviar o e-mail para definição da senha.';
-                    }
+                try {
+                    $token = Password::broker('usuarios')->createToken($usuario);
+                    $usuario->notify(new UsuarioResetPasswordNotification($token));
+                    $this->successMessage = 'Usuário criado com sucesso! Um e-mail foi enviado para que o usuário defina a própria senha.';
+                } catch (\Exception $e) {
+                    $this->successMessage = 'Usuário criado com sucesso, mas houve um erro ao enviar o e-mail para definição da senha.';
                 }
             }
             $this->resetForm();

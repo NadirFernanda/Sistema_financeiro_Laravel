@@ -207,6 +207,35 @@
             if (canvasDividas && window.Chart) {
                 const valoresNumericos = Array.isArray(dividasNaturezaValores) ? dividasNaturezaValores.map(v => Number(v)) : [];
 
+                // Plugin simples para desenhar rótulos com o valor exato sobre cada barra
+                const valueLabelPlugin = {
+                    id: 'valueLabelPlugin',
+                    afterDatasetsDraw: (chart, args, options) => {
+                        const ctx = chart.ctx;
+                        chart.data.datasets.forEach((dataset, dsIndex) => {
+                            const meta = chart.getDatasetMeta(dsIndex);
+                            meta.data.forEach((element, index) => {
+                                const value = dataset.data[index] ?? 0;
+                                const formatted = Number(value).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Kz';
+                                const position = element.tooltipPosition();
+                                ctx.save();
+                                ctx.fillStyle = (options && options.color) ? options.color : '#0b1220';
+                                ctx.font = (options && options.font) ? options.font : '12px "Segoe UI", Arial';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+                                if (chart.options && chart.options.indexAxis === 'y') {
+                                    ctx.textAlign = 'left';
+                                    ctx.fillText(formatted, position.x + 8, position.y);
+                                } else {
+                                    ctx.textBaseline = 'bottom';
+                                    ctx.fillText(formatted, position.x, position.y - 6);
+                                }
+                                ctx.restore();
+                            });
+                        });
+                    }
+                };
+
                 // Calcula um step 'amigável' para ticks baseado no maior valor
                 const computeNiceStep = (max) => {
                     const targetTicks = 5;
@@ -239,6 +268,7 @@
                             hoverBackgroundColor: '#e65c1a'
                         }]
                     },
+                    plugins: [valueLabelPlugin],
                     options: {
                         indexAxis: 'y',
                         responsive: true,
@@ -325,29 +355,58 @@
             const valoresNumericos = Array.isArray(valores) ? valores.map(v => Number(v)) : [];
 
             try {
+                // calcula stepSize amigável para o eixo Y (valores das barras)
+                const computeNiceStep = (max) => {
+                    const targetTicks = 5;
+                    if (!isFinite(max) || max <= 0) return 1;
+                    const rawStep = max / targetTicks;
+                    const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+                    const residual = rawStep / mag;
+                    let step;
+                    if (residual <= 1) step = 1 * mag;
+                    else if (residual <= 2) step = 2 * mag;
+                    else if (residual <= 5) step = 5 * mag;
+                    else step = 10 * mag;
+                    return step;
+                };
+                const maxVal = valoresNumericos.length ? Math.max(...valoresNumericos) : 0;
+                const stepSize = computeNiceStep(maxVal);
+                const suggestedMax = Math.ceil(maxVal / stepSize) * stepSize;
+
+                // plugin para desenhar rótulos de valor nas barras
+                const valueLabelPlugin2 = {
+                    id: 'valueLabelPlugin2',
+                    afterDatasetsDraw: (chart, args, options) => {
+                        const ctx = chart.ctx;
+                        chart.data.datasets.forEach((dataset, dsIndex) => {
+                            const meta = chart.getDatasetMeta(dsIndex);
+                            meta.data.forEach((element, index) => {
+                                const value = dataset.data[index] ?? 0;
+                                const formatted = Number(value).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Kz';
+                                const position = element.tooltipPosition();
+                                ctx.save();
+                                ctx.fillStyle = (options && options.color) ? options.color : '#0b1220';
+                                ctx.font = (options && options.font) ? options.font : '12px "Segoe UI", Arial';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+                                if (chart.options && chart.options.indexAxis === 'y') {
+                                    ctx.textAlign = 'left';
+                                    ctx.fillText(formatted, position.x + 8, position.y);
+                                } else {
+                                    ctx.textBaseline = 'bottom';
+                                    ctx.fillText(formatted, position.x, position.y - 6);
+                                }
+                                ctx.restore();
+                            });
+                        });
+                    }
+                };
+
                 mesCorrenteChartInstance = new Chart(canvasMes.getContext('2d'), {
                     type: 'bar',
                     data: {
-                        try {
-                            // calcula stepSize amigável para o eixo Y (valores das barras)
-                            const computeNiceStep = (max) => {
-                                const targetTicks = 5;
-                                if (!isFinite(max) || max <= 0) return 1;
-                                const rawStep = max / targetTicks;
-                                const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
-                                const residual = rawStep / mag;
-                                let step;
-                                if (residual <= 1) step = 1 * mag;
-                                else if (residual <= 2) step = 2 * mag;
-                                else if (residual <= 5) step = 5 * mag;
-                                else step = 10 * mag;
-                                return step;
-                            };
-                            const maxVal = valoresNumericos.length ? Math.max(...valoresNumericos) : 0;
-                            const stepSize = computeNiceStep(maxVal);
-                            const suggestedMax = Math.ceil(maxVal / stepSize) * stepSize;
-
-                            mesCorrenteChartInstance = new Chart(canvasMes.getContext('2d'), {
+                        labels: labels,
+                        datasets: [{
                             label: 'Total por Natureza (Kz)',
                             data: valoresNumericos,
                             backgroundColor: '#4facfe',
@@ -356,6 +415,7 @@
                             hoverBackgroundColor: '#1877F2'
                         }]
                     },
+                    plugins: [valueLabelPlugin2],
                     options: {
                         indexAxis: 'x',
                         responsive: true,
@@ -375,28 +435,18 @@
                                 beginAtZero: true,
                                 grid: { color: '#eef2f7' },
                                 ticks: { color: '#4b5563', font: { size: 12 } }
-                                        x: {
-                                            beginAtZero: true,
-                                            grid: { color: '#eef2f7' },
-                                            ticks: { color: '#4b5563', font: { size: 12 } }
-                                        },
-                                        y: {
-                                            beginAtZero: true,
-                                            suggestedMax: suggestedMax,
-                                            grid: { color: '#f3f5fb' },
-                                            ticks: {
-                                                color: '#4b5563',
-                                                font: { size: 12 },
-                                                stepSize: stepSize,
-                                                callback: function(value) {
-                                                    try {
-                                                        return Number(value).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                                                    } catch (e) {
-                                                        return value;
-                                                    }
-                                                }
-                                            }
-                                        }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                suggestedMax: suggestedMax,
+                                grid: { color: '#f3f5fb' },
+                                ticks: {
+                                    color: '#4b5563',
+                                    font: { size: 12 },
+                                    stepSize: stepSize,
+                                    callback: function(value) {
+                                        try {
+                                            return Number(value).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                                         } catch (e) {
                                             return value;
                                         }

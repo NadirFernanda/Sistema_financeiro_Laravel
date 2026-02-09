@@ -238,7 +238,17 @@
                             x: {
                                 beginAtZero: true,
                                 grid: { color: '#eef2f7' },
-                                ticks: { color: '#e65c1a', font: { size: 13 } }
+                                ticks: {
+                                    color: '#e65c1a',
+                                    font: { size: 13 },
+                                    callback: function(value) {
+                                        try {
+                                            return Number(value).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                        } catch (e) {
+                                            return value;
+                                        }
+                                    }
+                                }
                             },
                             y: {
                                 grid: { color: '#f3f5fb' },
@@ -329,7 +339,17 @@
                             y: {
                                 beginAtZero: true,
                                 grid: { color: '#f3f5fb' },
-                                ticks: { color: '#4b5563', font: { size: 12 } }
+                                ticks: {
+                                    color: '#4b5563',
+                                    font: { size: 12 },
+                                    callback: function(value) {
+                                        try {
+                                            return Number(value).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                        } catch (e) {
+                                            return value;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

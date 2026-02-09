@@ -60,6 +60,16 @@
     </div>
     <div class="login-card mx-auto">
         <h4 class="mb-4" style="font-weight: bold; text-align: center;">Acesso ao sistema</h4>
+        @if (session('success'))
+            <div class="mb-4 text-green-600 text-sm text-center">
+                {{ session('success') }}
+            </div>
+        @endif
+        @if (session('status'))
+            <div class="mb-4 text-green-600 text-sm text-center">
+                {{ session('status') }}
+            </div>
+        @endif
         {{-- O componente Livewire já inclui o formulário --}}
         <form method="POST" action="/login">
             @csrf

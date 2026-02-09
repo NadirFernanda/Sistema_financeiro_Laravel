@@ -206,6 +206,26 @@
             }
             if (canvasDividas && window.Chart) {
                 const valoresNumericos = Array.isArray(dividasNaturezaValores) ? dividasNaturezaValores.map(v => Number(v)) : [];
+
+                // Calcula um step 'amigável' para ticks baseado no maior valor
+                const computeNiceStep = (max) => {
+                    const targetTicks = 5;
+                    if (!isFinite(max) || max <= 0) return 1;
+                    const rawStep = max / targetTicks;
+                    const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+                    const residual = rawStep / mag;
+                    let step;
+                    if (residual <= 1) step = 1 * mag;
+                    else if (residual <= 2) step = 2 * mag;
+                    else if (residual <= 5) step = 5 * mag;
+                    else step = 10 * mag;
+                    return step;
+                };
+
+                const maxVal = valoresNumericos.length ? Math.max(...valoresNumericos) : 0;
+                const stepSize = computeNiceStep(maxVal);
+                const suggestedMax = Math.ceil(maxVal / stepSize) * stepSize;
+
                 new Chart(canvasDividas.getContext('2d'), {
                     type: 'bar',
                     data: {
@@ -237,10 +257,12 @@
                         scales: {
                             x: {
                                 beginAtZero: true,
+                                suggestedMax: suggestedMax,
                                 grid: { color: '#eef2f7' },
                                 ticks: {
                                     color: '#e65c1a',
                                     font: { size: 13 },
+                                    stepSize: stepSize,
                                     callback: function(value) {
                                         try {
                                             return Number(value).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -306,8 +328,26 @@
                 mesCorrenteChartInstance = new Chart(canvasMes.getContext('2d'), {
                     type: 'bar',
                     data: {
-                        labels: labels,
-                        datasets: [{
+                        try {
+                            // calcula stepSize amigável para o eixo Y (valores das barras)
+                            const computeNiceStep = (max) => {
+                                const targetTicks = 5;
+                                if (!isFinite(max) || max <= 0) return 1;
+                                const rawStep = max / targetTicks;
+                                const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+                                const residual = rawStep / mag;
+                                let step;
+                                if (residual <= 1) step = 1 * mag;
+                                else if (residual <= 2) step = 2 * mag;
+                                else if (residual <= 5) step = 5 * mag;
+                                else step = 10 * mag;
+                                return step;
+                            };
+                            const maxVal = valoresNumericos.length ? Math.max(...valoresNumericos) : 0;
+                            const stepSize = computeNiceStep(maxVal);
+                            const suggestedMax = Math.ceil(maxVal / stepSize) * stepSize;
+
+                            mesCorrenteChartInstance = new Chart(canvasMes.getContext('2d'), {
                             label: 'Total por Natureza (Kz)',
                             data: valoresNumericos,
                             backgroundColor: '#4facfe',
@@ -335,16 +375,28 @@
                                 beginAtZero: true,
                                 grid: { color: '#eef2f7' },
                                 ticks: { color: '#4b5563', font: { size: 12 } }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                grid: { color: '#f3f5fb' },
-                                ticks: {
-                                    color: '#4b5563',
-                                    font: { size: 12 },
-                                    callback: function(value) {
-                                        try {
-                                            return Number(value).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                        x: {
+                                            beginAtZero: true,
+                                            grid: { color: '#eef2f7' },
+                                            ticks: { color: '#4b5563', font: { size: 12 } }
+                                        },
+                                        y: {
+                                            beginAtZero: true,
+                                            suggestedMax: suggestedMax,
+                                            grid: { color: '#f3f5fb' },
+                                            ticks: {
+                                                color: '#4b5563',
+                                                font: { size: 12 },
+                                                stepSize: stepSize,
+                                                callback: function(value) {
+                                                    try {
+                                                        return Number(value).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                                    } catch (e) {
+                                                        return value;
+                                                    }
+                                                }
+                                            }
+                                        }
                                         } catch (e) {
                                             return value;
                                         }

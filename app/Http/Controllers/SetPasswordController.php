@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\Rules\Password as PasswordRule;
+use Illuminate\Support\Facades\Log;
 
 class SetPasswordController extends Controller
 {
@@ -39,18 +40,26 @@ class SetPasswordController extends Controller
             'password.min' => 'A senha deve ter pelo menos 8 caracteres.',
         ]);
 
-        $status = Password::broker('usuarios')->reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function (Usuario $usuario, $password) {
-                $usuario->senha = Hash::make($password);
-                $usuario->save();
+        try {
+            $status = Password::broker('usuarios')->reset(
+                $request->only('email', 'password', 'password_confirmation', 'token'),
+                function (Usuario $usuario, $password) {
+                    $usuario->senha = Hash::make($password);
+                    $usuario->save();
+                }
+            );
+
+            if ($status === Password::PASSWORD_RESET) {
+                return redirect()->route('login')->with('status', __($status));
             }
-        );
 
-        if ($status === Password::PASSWORD_RESET) {
-            return redirect()->route('login')->with('status', __($status));
+            return back()->withErrors(['email' => __($status)]);
+        } catch (\Throwable $e) {
+            Log::error('Erro ao redefinir senha: ' . $e->getMessage(), [
+                'exception' => $e,
+                'request' => $request->all(),
+            ]);
+            return back()->withErrors(['error' => 'Ocorreu um erro interno ao processar sua solicitação. O administrador foi notificado.']);
         }
-
-        return back()->withErrors(['email' => __($status)]);
     }
 }

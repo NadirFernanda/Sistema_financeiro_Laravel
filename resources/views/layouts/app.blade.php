@@ -9,7 +9,26 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" onerror="this.onerror=null;this.href='/css/bootstrap.min.css'">
 </head>
 <body>
-    <!-- Barra azul removida completamente -->
+    <!-- Topbar: mostra usuário logado e papel -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="{{ route('dashboard') }}">Sistema Financeiro</a>
+            @if(Auth::check())
+                <div class="ms-auto d-flex align-items-center">
+                    <span class="me-3">Olá, {{ Auth::user()->nome }} (<strong>{{ ucfirst(Auth::user()->role) }}</strong>)</span>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">Sair</button>
+                    </form>
+                </div>
+            @else
+                <div class="ms-auto">
+                    <a href="{{ route('login.form') }}" class="btn btn-link">Entrar</a>
+                </div>
+            @endif
+        </div>
+    </nav>
+
     <main class="container py-5">
         @yield('content')
     </main>

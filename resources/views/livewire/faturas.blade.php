@@ -7,7 +7,7 @@
         });
     </script>
     <div style="margin-bottom:18px;display:flex;justify-content:flex-start;align-items:center;">
-        <x-button-back :href="url('/dashboard')" label="Voltar" />
+        <x-button-back :href="url('/dashboard')" label="Voltar ao Dashboard" />
     </div>
     <div style="margin-bottom:32px;">
         <h2 style="color:#1877F2;font-size:2.2rem;font-weight:700;margin-bottom:0.2rem;font-family:'Inter','Roboto',Arial,sans-serif;">Módulo financeiro</h2>

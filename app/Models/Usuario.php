@@ -23,6 +23,15 @@ class Usuario extends Authenticatable implements CanResetPasswordContract
 
     public function sendPasswordResetNotification($token)
     {
-        $this->notify(new UsuarioResetPasswordNotification($token));
+        try {
+            $this->notify(new UsuarioResetPasswordNotification($token));
+        } catch (\Throwable $e) {
+            \Log::error('Erro ao enviar notificação de redefinição de senha: ' . $e->getMessage(), [
+                'exception' => $e,
+                'usuario_id' => $this->id ?? null,
+                'email' => $this->email ?? null,
+            ]);
+            // Não relançar para não quebrar o fluxo de criação/atualização do usuário
+        }
     }
 }

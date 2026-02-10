@@ -1,0 +1,10 @@
+:root{
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --muted: #6b7280;
+  --accent: #0ea5a4;
+  --card-shadow: 0 6px 20px rgba(10,11,13,0.06);
+  --btn-bg: #ffffff;
+  --btn-color: #374151;
+  --btn-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}

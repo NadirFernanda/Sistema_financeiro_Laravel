@@ -1,0 +1,5 @@
+@import "./_variables.css";
+
+/* Place global app styles here. This file is picked up by Vite / build pipeline. */
+
+body{ background:var(--bg); color:var(--btn-color); }

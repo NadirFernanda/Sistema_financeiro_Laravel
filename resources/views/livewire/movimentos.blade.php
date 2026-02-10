@@ -1,8 +1,6 @@
 <div style="background:#f4f6fa;min-height:100vh;padding:0 0 32px 0;">
     <div style="display:flex;justify-content:flex-start;align-items:center;padding:24px 0 0 36px;max-width:98vw;">
-        <a href="{{ route('dashboard') }}" class="btn btn-primary" style="background:#1877F2;border:none;font-weight:600;font-size:1.08rem;border-radius:8px;padding:8px 22px;box-shadow:0 1px 6px rgba(24,119,242,0.10);">
-            <i class="bi bi-arrow-left" style="margin-right:6px;"></i> Voltar ao Dashboard
-        </a>
+        <x-button-back :href="route('dashboard')" label="Voltar ao Dashboard" />
     </div>
     <div style="background:#1877F2;color:#fff;font-size:2rem;font-weight:700;padding:28px 36px 18px 36px;border-radius:22px 22px 24px 24px;box-shadow:0 2px 12px rgba(24,119,242,0.10);margin:32px 0 32px 0;max-width:98vw;">
         Plano de caixa

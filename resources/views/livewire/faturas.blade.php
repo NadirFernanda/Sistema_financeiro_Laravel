@@ -7,9 +7,7 @@
         });
     </script>
     <div style="margin-bottom:18px;display:flex;justify-content:flex-start;align-items:center;">
-        <a href="{{ url('/dashboard') }}" class="btn btn-outline-primary" style="border-radius:8px;padding:8px 22px;font-weight:500;font-size:1rem;">
-            &#8592; Voltar
-        </a>
+        <x-button-back :href="url('/dashboard')" label="Voltar" />
     </div>
     <div style="margin-bottom:32px;">
         <h2 style="color:#1877F2;font-size:2.2rem;font-weight:700;margin-bottom:0.2rem;font-family:'Inter','Roboto',Arial,sans-serif;">Módulo financeiro</h2>

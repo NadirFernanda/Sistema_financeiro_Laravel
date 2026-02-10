@@ -42,9 +42,7 @@
     </form>
     @endif
     <div style="display:flex;justify-content:flex-start;align-items:center;margin-bottom:12px;">
-        <a href="{{ route('dashboard') }}" class="btn btn-primary" style="background:#1877F2;border:none;font-weight:600;font-size:1.08rem;border-radius:8px;padding:8px 22px;box-shadow:0 1px 6px rgba(24,119,242,0.10);">
-            <i class="bi bi-arrow-left" style="margin-right:6px;"></i> Voltar ao Dashboard
-        </a>
+        <x-button-back :href="route('dashboard')" label="Voltar ao Dashboard" />
     </div>
     <h2 style="color:#1877F2;font-size:2.1rem;font-weight:700;margin-bottom:10px;">Gestão de Usuários</h2>
     <div style="color:#1877F2;font-size:1.18rem;font-weight:600;margin-bottom:8px;">Funções dos Usuários:</div>

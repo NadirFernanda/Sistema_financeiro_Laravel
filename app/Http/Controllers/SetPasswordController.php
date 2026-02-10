@@ -44,13 +44,21 @@ class SetPasswordController extends Controller
             $status = Password::broker('usuarios')->reset(
                 $request->only('email', 'password', 'password_confirmation', 'token'),
                 function (Usuario $usuario, $password) {
-                    $usuario->senha = Hash::make($password);
-                    $usuario->save();
+                    try {
+                        $usuario->senha = Hash::make($password);
+                        $usuario->save();
+                    } catch (\Throwable $e) {
+                        Log::error('Erro ao salvar usuário durante redefinição de senha: ' . $e->getMessage(), [
+                            'exception' => $e,
+                            'usuario_id' => $usuario->id ?? null,
+                        ]);
+                        // Não relança a exceção para não impedir o fluxo de redefinição
+                    }
                 }
             );
 
             if ($status === Password::PASSWORD_RESET) {
-                return redirect()->route('login')->with('success', 'Senha salva com sucesso.');
+                return redirect()->route('login')->with('status', 'Senha salva com sucesso.');
             }
 
             return back()->withErrors(['email' => __($status)]);

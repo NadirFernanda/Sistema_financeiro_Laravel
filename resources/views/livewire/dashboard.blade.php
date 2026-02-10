@@ -319,13 +319,33 @@
         <div class="dashboard-subtitle" style="color:#6c757d;font-size:1.2rem;">Sistema de despesas e controle de faturas.</div>
     </div>
     <div class="main-content" style="margin-top:92px;">
-                <div class="dashboard-notification" style="background:#f4faff;border:2px solid #1877F2;border-radius:24px;padding:32px 40px;margin-bottom:32px;display:flex;align-items:flex-start;gap:18px;">
-                    <span class="icon" style="display:flex;align-items:center;justify-content:center;min-width:38px;">
-                        <i data-feather="info" style="width:38px;height:38px;stroke:#1877F2;"></i>
-                    </span>
-                    <div>
-                        <div style="color:#1877F2;font-size:1.5rem;font-weight:bold;margin-bottom:0.2rem;">Nenhuma notificação encontrada</div>
-                        <div style="color:#6c757d;font-size:1.15rem;">Verifique novamente mais tarde.</div>
+                <div style="margin-bottom:32px;">
+                    <div class="dashboard-card" style="background:#fff;border:1.2px solid #e6e9ef;border-radius:16px;max-width:460px;padding:20px;">
+                        <div class="card-title" style="color:#1877F2;font-weight:bold;font-size:1.18rem;display:flex;align-items:center;gap:10px;">
+                            <span class="icon" style="display:flex;align-items:center;">
+                                <i data-feather="user" style="width:22px;height:22px;stroke:#1877F2;"></i>
+                            </span>
+                            Minha Conta
+                        </div>
+                        <div style="margin-top:8px;margin-bottom:8px;color:#333;font-size:1.05rem;font-weight:600;">{{ optional(Auth::user())->nome ?? '—' }}</div>
+                        <div style="margin-bottom:12px;">
+                            @php
+                                $role = optional(Auth::user())->role ?? 'Usuário';
+                                $badgeColor = match(strtolower($role)) {
+                                    'admin' => '#1560c2',
+                                    'financeiro' => '#2e7d32',
+                                    'presidente' => '#8e24aa',
+                                    'gabinete do presidente' => '#8e24aa',
+                                    'executor' => '#ff6f3c',
+                                    default => '#6c757d',
+                                };
+                            @endphp
+                            <span style="display:inline-block;padding:6px 10px;border-radius:999px;background:{{ $badgeColor }};color:#fff;font-weight:700;font-size:0.9rem;">{{ ucfirst($role) }}</span>
+                        </div>
+                        <div style="margin-top:auto;display:flex;gap:12px;align-items:center;">
+                            <a href="/usuarios" class="card-link" style="color:#32805c;font-weight:600;text-decoration:none;">Perfil</a>
+                            <a href="/password/reset" class="card-link" style="color:#32805c;font-weight:600;text-decoration:none;">Alterar senha</a>
+                        </div>
                     </div>
                 </div>
         <div class="dashboard-cards" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:24px;">
@@ -360,34 +380,6 @@
                 <a href="{{ route('relatorios') }}" class="card-link" style="color:#32805c;font-weight:600;text-decoration:none;">Mais informações &rarr;</a>
             </div>
         </div>
-        <div class="dashboard-cards" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
-            <div class="dashboard-card" style="background:#fff;border:1.2px solid #e6e9ef;border-radius:16px;">
-                <div class="card-title" style="color:#1877F2;font-weight:bold;font-size:1.18rem;display:flex;align-items:center;gap:10px;">
-                    <span class="icon" style="display:flex;align-items:center;">
-                        <i data-feather="user" style="width:22px;height:22px;stroke:#1877F2;"></i>
-                    </span>
-                    Minha Conta
-                </div>
-                <div style="margin-top:8px;margin-bottom:8px;color:#333;font-size:1.05rem;font-weight:600;">{{ optional(Auth::user())->nome ?? '—' }}</div>
-                <div style="margin-bottom:12px;">
-                    @php
-                        $role = optional(Auth::user())->role ?? 'Usuário';
-                        $badgeColor = match(strtolower($role)) {
-                            'admin' => '#1560c2',
-                            'financeiro' => '#2e7d32',
-                            'presidente' => '#8e24aa',
-                            'gabinete do presidente' => '#8e24aa',
-                            'executor' => '#ff6f3c',
-                            default => '#6c757d',
-                        };
-                    @endphp
-                    <span style="display:inline-block;padding:6px 10px;border-radius:999px;background:{{ $badgeColor }};color:#fff;font-weight:700;font-size:0.9rem;">{{ ucfirst($role) }}</span>
-                </div>
-                <div style="margin-top:auto;display:flex;gap:12px;align-items:center;">
-                    <a href="/usuarios" class="card-link" style="color:#32805c;font-weight:600;text-decoration:none;">Perfil</a>
-                    <a href="/password/reset" class="card-link" style="color:#32805c;font-weight:600;text-decoration:none;">Alterar senha</a>
-                </div>
-            </div>
-        </div>
+        
     </div>
 </div>

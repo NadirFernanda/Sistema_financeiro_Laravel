@@ -58,7 +58,7 @@ class SetPasswordController extends Controller
             );
 
             if ($status === Password::PASSWORD_RESET) {
-                return redirect()->route('login')->with('status', 'Senha salva com sucesso.');
+                 return redirect()->route('login.form')->with('status', 'Senha salva com sucesso.');
             }
 
             return back()->withErrors(['email' => __($status)]);

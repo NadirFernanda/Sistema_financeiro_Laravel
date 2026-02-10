@@ -361,6 +361,33 @@
             </div>
         </div>
         <div class="dashboard-cards" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
+            <div class="dashboard-card" style="background:#fff;border:1.2px solid #e6e9ef;border-radius:16px;">
+                <div class="card-title" style="color:#1877F2;font-weight:bold;font-size:1.18rem;display:flex;align-items:center;gap:10px;">
+                    <span class="icon" style="display:flex;align-items:center;">
+                        <i data-feather="user" style="width:22px;height:22px;stroke:#1877F2;"></i>
+                    </span>
+                    Minha Conta
+                </div>
+                <div style="margin-top:8px;margin-bottom:8px;color:#333;font-size:1.05rem;font-weight:600;">{{ optional(Auth::user())->nome ?? '—' }}</div>
+                <div style="margin-bottom:12px;">
+                    @php
+                        $role = optional(Auth::user())->role ?? 'Usuário';
+                        $badgeColor = match(strtolower($role)) {
+                            'admin' => '#1560c2',
+                            'financeiro' => '#2e7d32',
+                            'presidente' => '#8e24aa',
+                            'gabinete do presidente' => '#8e24aa',
+                            'executor' => '#ff6f3c',
+                            default => '#6c757d',
+                        };
+                    @endphp
+                    <span style="display:inline-block;padding:6px 10px;border-radius:999px;background:{{ $badgeColor }};color:#fff;font-weight:700;font-size:0.9rem;">{{ ucfirst($role) }}</span>
+                </div>
+                <div style="margin-top:auto;display:flex;gap:12px;align-items:center;">
+                    <a href="/usuarios" class="card-link" style="color:#32805c;font-weight:600;text-decoration:none;">Perfil</a>
+                    <a href="/password/reset" class="card-link" style="color:#32805c;font-weight:600;text-decoration:none;">Alterar senha</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>

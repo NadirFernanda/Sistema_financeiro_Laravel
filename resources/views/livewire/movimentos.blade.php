@@ -194,4 +194,7 @@
             </tbody>
         </table>
     </div>
+    <div class="mt-3 d-flex justify-content-end" style="max-width:98vw;padding-right:24px;margin-top:12px;">
+        {{ $movimentos->links() }}
+    </div>
 </div>

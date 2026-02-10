@@ -4,12 +4,16 @@ namespace App\Livewire;
 
 
 use Livewire\Component;
+use Livewire\WithPagination;
 use App\Models\Movimento;
 use Illuminate\Support\Facades\DB;
 
 
 class Movimentos extends Component
 {
+    use WithPagination;
+
+    protected $paginationTheme = 'bootstrap';
     // Garante que ao mudar para 'entrada', o campo factura_id é limpo
     public function updatedTipo($value)
     {
@@ -86,7 +90,6 @@ class Movimentos extends Component
     public function mount()
     {
         $this->carregarFacturas();
-        $this->carregarMovimentos();
         $this->calcularResumo();
     }
 
@@ -97,12 +100,8 @@ class Movimentos extends Component
 
     public function carregarMovimentos()
     {
-        $query = Movimento::with('factura');
-        if ($this->data_inicio && $this->data_fim) {
-            $query->whereBetween('data_cadastro', [$this->data_inicio, $this->data_fim]);
-        }
-        $this->movimentos = $query->orderByDesc('data_cadastro')->get();
-        $this->calcularResumo();
+        // Pagination is handled in render(); reset page when filters change
+        $this->resetPage();
     }
 
     public function calcularResumo()
@@ -170,7 +169,8 @@ class Movimentos extends Component
             $this->mensagem = 'Movimento cadastrado com sucesso!';
         }
         $this->resetarFormulario();
-        $this->carregarMovimentos();
+        $this->calcularResumo();
+        $this->resetPage();
     }
 
     public function editarMovimento($id)
@@ -195,7 +195,8 @@ class Movimentos extends Component
         Movimento::destroy($id);
         $this->mensagem = 'Movimento excluído com sucesso!';
         $this->resetarFormulario();
-        $this->carregarMovimentos();
+        $this->calcularResumo();
+        $this->resetPage();
     }
 
     public function resetarFormulario()
@@ -213,16 +214,31 @@ class Movimentos extends Component
         $this->modoEdicao = false;
         $this->data_inicio = '';
         $this->data_fim = '';
-        $this->carregarMovimentos();
+        // render() will load paginated movimentos
     }
 
     public function filtrarPorData()
     {
-        $this->carregarMovimentos();
+        $this->resetPage();
+    }
+
+    public function updatingDataInicio()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingDataFim()
+    {
+        $this->resetPage();
     }
 
     public function render()
     {
-        return view('livewire.movimentos');
+        $query = Movimento::with('factura');
+        if ($this->data_inicio && $this->data_fim) {
+            $query->whereBetween('data_cadastro', [$this->data_inicio, $this->data_fim]);
+        }
+        $movimentos = $query->orderByDesc('data_cadastro')->paginate(15);
+        return view('livewire.movimentos', compact('movimentos'));
     }
 }

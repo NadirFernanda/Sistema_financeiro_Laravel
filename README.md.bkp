@@ -1,0 +1,304 @@
+## Permissões dos Papéis de Usuário
+
+| Papel                  | Inserir Despesas | Editar Despesas | Visualizar Todas as Despesas e Faturas |
+|------------------------|:---------------:|:--------------:|:--------------------------------------:|
+| Secretaria             | Sim             | Não            | Não                                    |
+| Contratação Pública    | Sim             | Não            | Não                                    |
+| Executor               | Não             | Sim            | Não                                    |
+| Gabinete do Presidente | Não             | Não            | Sim                                    |
+| Presidente             | Não             | Não            | Sim                                    |
+| Admin                  | Sim             | Sim            | Sim                                    |
+| Financeiro             | Sim             | Sim            | Sim                                    |
+| Usuário                | Não             | Não            | Não                                    |
+
+**Regras:**
+- Secretaria e Contratação Pública: Podem inserir novas despesas, mas não editar.
+- Executor: Só pode editar despesas.
+- Gabinete do Presidente e Presidente: Apenas visualizam todas as despesas e faturas, sem editar ou adicionar.
+
+﻿# Sistema Financeiro Laravel
+
+Sistema de gestão financeira interno, focado em **faturas**, **despesas (movimentos)**, **relatórios gerenciais** e **gestão de usuários/perfis de acesso**, desenvolvido em **Laravel 10** com **Livewire** e Blade.
+
+---
+
+## Sumário
+- [Visão Geral](#visão-geral)
+- [Principais Funcionalidades](#principais-funcionalidades)
+- [Arquitetura e Tecnologias](#arquitetura-e-tecnologias)
+- [Papéis e Permissões](#papéis-e-permissões)
+- [Fluxos Principais](#fluxos-principais)
+	- [Autenticação e Acesso](#autenticação-e-acesso)
+	- [Fluxo de Faturas](#fluxo-de-faturas)
+	- [Fluxo de Despesas (Movimentos)](#fluxo-de-despesas-movimentos)
+	- [Fluxo de Relatórios](#fluxo-de-relatórios)
+	- [Gestão de Usuários](#gestão-de-usuários)
+- [Como Rodar o Projeto (Backend + Frontend)](#como-rodar-o-projeto-backend--frontend)
+- [Git, Versões e Deploy em Produção](#git-versões-e-deploy-em-produção)
+	- [Fluxo no Ambiente de Desenvolvimento](#fluxo-no-ambiente-de-desenvolvimento)
+	- [Primeiro Deploy em Produção](#primeiro-deploy-em-produção)
+	- [Atualizar o Sistema em Produção](#atualizar-o-sistema-em-produção)
+- [Testes Automatizados](#testes-automatizados)
+- [Contato](#contato)
+
+---
+
+## Visão Geral
+
+Este sistema foi criado para apoiar o **controle financeiro institucional**, permitindo registrar e acompanhar:
+
+- **Faturas** emitidas/recebidas, seus valores, status de pagamento e documentos anexos.
+- **Despesas (movimentos)** de entrada e saída, vinculadas ou não a faturas, com natureza de pagamento e fonte de financiamento.
+- **Relatórios gerenciais**, com gráficos e exportação para Excel, para análise de dívidas, despesas por natureza e faturas por status/período.
+- **Usuários e perfis**, com regras claras de permissão de acordo com o papel desempenhado (Secretaria, Contratação Pública, Executor, Gabinete, Presidente, Admin, Financeiro, etc.).
+
+O frontend é renderizado via **Blade** e **Livewire**, com gráficos construídos em **Chart.js**.
+
+---
+
+## Principais Funcionalidades
+
+- **Dashboard**
+	- Visão resumida de totais de faturas, despesas e relatórios (soma de faturas + despesas).
+
+- **Módulo de Faturas** (`app/Livewire/Faturas.php`)
+	- Cadastro e edição de faturas com:
+		- Número da fatura, empresa, tipo de serviço, natureza, tipologia.
+		- Datas de execução/pagamento, valores total e pago.
+		- Cálculo automático de **status** (pendente, parcial, pago) quando não definido manualmente.
+		- Upload de arquivo (PDF/imagem) vinculado à fatura.
+	- Pesquisa de faturas por número.
+	- Regras de permissão por papel para inserir, editar e excluir.
+
+- **Módulo de Despesas / Movimentos** (`app/Livewire/Movimentos.php`)
+	- Registro de **entradas** e **saídas** com número de ordem, empresa, descrição, natureza de pagamento, valor, fonte de financiamento e data de cadastro.
+	- Associação **obrigatória** da despesa a uma fatura (`factura_id`) quando o tipo é **saída**, e **proibida** quando o tipo é **entrada**.
+	- Cálculo automático de **total de entradas**, **total de saídas** e **saldo**.
+	- Filtros por período de data.
+	- Permissões específicas para inserir, editar e excluir.
+
+- **Módulo de Relatórios** (`app/Livewire/Relatorios.php`)
+	- Relatório de **dívidas** (faturas pendentes ou parciais), com total em aberto e agrupamento por natureza.
+	- Relatório de **faturas** por status e por período, com normalização de status (ex.: `reprovada` → `rejeitada`).
+	- Relatório de **despesas por natureza no período selecionado**, com:
+		- Gráfico de barras (Chart.js) por natureza de pagamento.
+		- Filtro por intervalo de datas com validação clara (datas obrigatórias, formato válido, início ≤ fim).
+	- **Exportação para Excel** (PhpSpreadsheet) de dívidas e faturas.
+
+- **Gestão de Usuários** (`app/Livewire/Usuarios.php`)
+	- Cadastro, edição e exclusão de usuários.
+	- Geração automática de senha forte no primeiro cadastro.
+	- Envio de notificação por e-mail com a senha inicial.
+	- Suporte a redefinição de senha via token e notificação.
+
+- **Autenticação e Rotas** (`routes/web.php`)
+	- Tela de login (`/`).
+	- Rotas autenticadas para **dashboard**, **faturas**, **movimentos**, **relatórios** e **usuários**.
+	- Fluxo de **definição de senha** no primeiro acesso/reset.
+	- Logout com limpeza de sessão.
+
+---
+
+## Arquitetura e Tecnologias
+
+- **Backend:** Laravel 10
+- **Frontend:** Blade + Livewire
+- **Gráficos:** Chart.js (via arquivos JS no frontend)
+- **Banco de Dados:** Eloquent ORM, com modelos principais:
+	- `App\Models\Factura` – usa `numero_factura` como chave primária (string, não auto-incremental) e calcula `valor_pendente` dinamicamente.
+	- `App\Models\Movimento` – representa entradas/saídas financeiras, com relação `belongsTo` para `Factura`.
+	- `App\Models\Usuario` – usuário autenticável com campo `senha`, papéis (`role`) e notificações de senha.
+- **Relatórios/Exportação:** PhpSpreadsheet (geração de arquivos `.xlsx`).
+- **Autenticação:** baseada em `Usuario` como `Authenticatable`, com fluxo de reset de senha customizado.
+
+---
+
+## Papéis e Permissões
+
+A gestão de permissões é baseada no campo `role` da tabela de usuários (`usuarios`). Alguns exemplos de uso prático aparecem nos componentes Livewire de **Faturas** e **Movimentos**, restringindo ações como inserir/editar/excluir.
+
+### Tabela Resumida de Permissões (Despesas)
+
+| Papel                  | Inserir Despesas | Editar Despesas | Visualizar Todas as Despesas e Faturas |
+|------------------------|:---------------:|:--------------:|:--------------------------------------:|
+| Secretaria             | Sim             | Não            | Não                                    |
+| Contratação Pública    | Sim             | Não            | Não                                    |
+| Executor               | Não             | Sim            | Não                                    |
+| Gabinete do Presidente | Não             | Não            | Sim                                    |
+| Presidente             | Não             | Não            | Sim                                    |
+| Admin                  | Sim             | Sim            | Sim                                    |
+| Financeiro             | Sim             | Sim            | Sim                                    |
+| Usuário                | Não             | Não            | Não                                    |
+
+**Regras gerais:**
+- Secretaria e Contratação Pública: Podem inserir novas despesas, mas não editar.
+- Executor: Só pode editar despesas.
+- Gabinete do Presidente e Presidente: Apenas visualizam todas as despesas e faturas, sem editar ou adicionar.
+- Admin e Financeiro: Têm acesso total.
+
+> Observação: as mesmas regras (ou variações compatíveis) são aplicadas nos componentes de Faturas e Movimentos, via propriedades computadas como `getPodeInserirProperty`, `getPodeEditarProperty`, etc.
+
+- **Autor:** [Seu Nome](https://github.com/{USUARIO_GITHUB})
+- **E-mail:** seu.email@exemplo.com
+
+
+### 1. Instalar dependências do PHP
+Execute no terminal:
+
+	composer install
+
+### 2. Instalar dependências do Node.js (para assets JS/CSS)
+Execute no terminal:
+
+	npm install
+
+### 3. Configurar variáveis de ambiente
+Copie o arquivo `.env.example` para `.env` e ajuste as variáveis conforme seu ambiente (banco de dados, etc).
+
+### 4. Gerar chave da aplicação
+Execute:
+
+	php artisan key:generate
+
+### 5. Rodar as migrações do banco de dados
+Execute:
+
+	php artisan migrate
+
+### 6. Compilar os assets do frontend (JS/CSS)
+Para ambiente de desenvolvimento:
+
+	npm run dev
+
+Para ambiente de produção:
+
+	npm run build
+
+### 7. Iniciar o servidor Laravel
+Execute:
+
+	php artisan serve
+
+O sistema estará disponível em http://localhost:8000
+
+---
+
+
+### 1. Fluxo no ambiente de desenvolvimento (seu computador)
+
+- Este repositório já está configurado com `.gitignore` correto (não envia `.env`, `vendor/`, `storage/`, etc.).
+- Para registrar alterações no código e enviar para o GitHub (usuária `NadirFernanda`), use SEMPRE dentro da pasta do projeto:
+
+		cd "c:\Users\Administrator\Documents\INVOICE_LARAVEL - PRODUÇÃO\backend-laravel10"
+
+  2. Adicionar arquivos modificados (exemplo):
+
+		git add app/Livewire/Usuarios.php app/Http/Controllers/SetPasswordController.php app/Notifications/UsuarioInitialPasswordNotification.php resources/views/auth/set-password.blade.php
+
+  3. Criar o commit com uma mitar o arquivo `.env`. Ele já está no `.gitignore`.
+
+### 2. Primeiro deploy em produção (servidor Linux)
+
+No servidor (usuário `usuario@isp-bie`, por exemplo), execute APENAS dentro da pasta do projeto:
+
+1. Clonar o repositório (somente na primeira vez):
+
+		cd ~
+		git clone https://github.com/NadirFernanda/Sistema_financeiro_Laravel.git
+		cd Sistema_financeiro_Laravel
+
+2. Criar o arquivo `.env` de PRODUÇÃO nesta pasta (copiar de um modelo e ajustar banco, e-mail, `APP_URL`, etc.).
+
+3. Instalar dependências PHP (somente back-end, sem dev):
+
+		composer install --no-dev --optimize-autoloader
+
+4. Rodar migrações do banco de dados (cuidado: usa o banco configurado no `.env` de produção):
+
+		php artisan migrate --force
+
+5. cd /var/www/sistema_financeiro
+git pull origin master
+php artisan config:clear
+php artisan view:clear
+php artisan route:clear
+php artisan config:cache
+php artisan route:cacheizar configuração e rotas:
+
+		php artisan config:cache
+		php artisan route:cache
+
+Depois disso, o servidor web (Nginx/Apache) deve apontar para a pasta `public/` deste projeto.
+
+### 3. Atualizar o sistema em produção (novas versões)
+
+Sempre que fizer alterações no código e enviar para o GitHub a partir do seu computador (passos da seção 1), para atualizar o servidor faça:
+
+1. 
+
+ndências PHP (caso tenha mudado algo no `composer.json`):
+
+		composer install --no-dev --optimize-autoloader
+
+4. Aplicar novas migrations (se existirem):
+
+		php artisan migrate --force
+
+5. Recarregar caches de config/rotas:
+
+		php artisan config:cache
+		php artisan route:cache
+
+> Dica: se algum erro 500 aparecer depois de um deploy, verifique o log em `storage/logs/laravel.log` no servidor.
+
+---
+
+
+---
+
+
+Para executar a suíte de testes do Laravel neste projeto em ambiente de desenvolvimento, siga estes passos:
+
+1. Certifique-se de que as dependências PHP estão instaladas:
+
+	composer install
+
+2. Garanta que o arquivo `.env` está configurado e que o banco de dados de desenvolvimento existe (ou configure um banco específico de testes via `.env.testing`, se preferir).
+
+3. Execute as migrações no banco utilizado nos testes (normalmente o mesmo do `.env` em desenvolvimento):
+
+	php artisan migrate
+
+4. Rode todos os testes automatizados com o comando:
+
+	php artisan test
+
+Esse comando usa a configuração do `phpunit.xml` do projeto e executa tanto os testes de unidade quanto os de funcionalidade. Caso queira rodar um arquivo de teste ou suíte específica, você pode usar, por exemplo:
+
+	php artisan test --testsuite=Feature
+	php artisan test tests/Feature/ExampleTest.php
+
+### Rodar testes em homologação/produção (servidor)
+
+Em servidor de homologação ou produção, o comando dos testes é o mesmo, mas **tenha muito cuidado com o banco de dados**:
+
+1. Acesse o servidor via SSH e entre na pasta do projeto (exemplo):
+
+	cd ~/Sistema_financeiro_Laravel
+
+2. Se possível, configure um ambiente de testes separado com um banco próprio (arquivo `.env.testing`). Exemplo mínimo:
+
+	APP_ENV=testing
+	DB_DATABASE=seu_banco_de_teste
+
+3. Execute os testes apontando para esse ambiente de teste:
+
+	php artisan test --env=testing
+
+4. Se, em último caso, for realmente necessário rodar diretamente com o `.env` de produção (não recomendado porque pode apagar/alterar dados), o comando é:
+
+	php artisan test --env=production
+
+Use essa última opção apenas se souber exatamente o impacto dos testes no banco de dados.
+
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

@@ -66,7 +66,9 @@ class Movimentos extends Component
         'factura_id.required' => 'O campo Fatura é obrigatório para saídas.',
         'factura_id.exists' => 'A fatura selecionada não existe.',
     ];
-    public $movimentos = [];
+    // `movimentos` is provided as a paginated variable from render();
+    // avoid using a public property named `movimentos` to prevent
+    // collisions with the paginator instance used in the Blade view.
     public $numero_ordem;
     public $empresa;
     public $descricao;

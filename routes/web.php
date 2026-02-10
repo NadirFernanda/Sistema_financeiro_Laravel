@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SetPasswordController;
+use App\Http\Controllers\PasswordController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -34,6 +35,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/movimentos', function () {
         return view('movimentos');
     })->name('movimentos');
+
+    // Alterar senha (usuário autenticado)
+    Route::get('/profile/password', [PasswordController::class, 'showChangeForm'])->name('password.change');
+    Route::post('/profile/password', [PasswordController::class, 'update'])->name('password.change.update');
 
     // Rota para exibir fatura individual (web)
     Route::get('/facturas/{factura}', function ($factura) {

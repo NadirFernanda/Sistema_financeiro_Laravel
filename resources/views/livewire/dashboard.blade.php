@@ -344,7 +344,7 @@
                         </div>
                         <div style="margin-top:auto;display:flex;gap:12px;align-items:center;">
                             <a href="/usuarios" class="card-link" style="color:#32805c;font-weight:600;text-decoration:none;">Perfil</a>
-                            <a href="/password/reset" class="card-link" style="color:#32805c;font-weight:600;text-decoration:none;">Alterar senha</a>
+                            <a href="{{ route('password.change') }}" class="card-link" style="color:#32805c;font-weight:600;text-decoration:none;">Alterar senha</a>
                         </div>
                     </div>
                 </div>

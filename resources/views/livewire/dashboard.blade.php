@@ -272,6 +272,26 @@
         transition: transform 0.18s, box-shadow 0.18s;
     }
     .dashboard-card:hover{ transform: translateY(-6px); box-shadow:0 18px 40px rgba(18,38,63,0.08);} 
+
+    /* Animations on open */
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .dashboard-topbar{ animation: fadeUp 420ms cubic-bezier(.2,.9,.2,1) both; }
+    .main-content{ animation: fadeIn 380ms ease-out both; }
+
+    .dashboard-card{ opacity:0; animation: fadeUp 520ms cubic-bezier(.2,.9,.2,1) both; animation-delay: var(--anim-delay, 0ms);}    
+    .dashboard-cards .dashboard-card:nth-child(1){ --anim-delay: 120ms; }
+    .dashboard-cards .dashboard-card:nth-child(2){ --anim-delay: 220ms; }
+    .dashboard-cards .dashboard-card:nth-child(3){ --anim-delay: 320ms; }
+
+    /* Respect user preference */
+    @media (prefers-reduced-motion: reduce) {
+        * { animation: none !important; transition: none !important; }
+    }
     .dashboard-card.faturas { border: 2px solid #ff6f3c; background: #fff6f2; }
     .dashboard-card.despesas { border: 2px solid #42a5ff; background: #f0f6ff; }
     .dashboard-card.relatorios { border: 2px solid #1560c2; background: #f0f6ff; }

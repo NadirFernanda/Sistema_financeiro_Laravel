@@ -227,7 +227,7 @@
         cursor: pointer;
     }
     .main-content {
-        margin-left: 320px;
+        margin-left: 300px;
         padding: 28px 36px 48px 36px;
         transition: padding 0.2s;
         max-width: 1200px;
@@ -355,11 +355,11 @@
             </form>
         </div>
     </div>
-    <div class="dashboard-topbar" style="position:fixed;top:0;left:340px;right:0;height:128px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.04);z-index:20;display:flex;flex-direction:column;justify-content:center;padding:36px 48px 0 48px;">
+    <div class="dashboard-topbar" style="position:fixed;top:0;left:300px;right:0;height:128px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.04);z-index:20;display:flex;flex-direction:column;justify-content:center;padding:36px 48px 0 48px;">
         <div class="dashboard-title" style="color:#1877F2;font-size:2.5rem;font-weight:bold;margin-bottom:0.2rem;">Módulo financeiro</div>
         <div class="dashboard-subtitle" style="color:#6c757d;font-size:1.2rem;">Sistema de despesas e controle de faturas.</div>
     </div>
-    <div class="main-content" style="margin-top:92px;">
+    <div class="main-content" style="margin-top:128px;">
                 <div style="margin-bottom:32px;">
                     <div class="dashboard-card" style="background:#fff;border:1.2px solid #e6e9ef;border-radius:16px;max-width:460px;padding:20px;">
                         <div class="card-title" style="color:#1877F2;font-weight:bold;font-size:1.18rem;display:flex;align-items:center;gap:10px;">

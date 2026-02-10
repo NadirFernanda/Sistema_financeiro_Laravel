@@ -1,5 +1,16 @@
 <div>
     <style>
+                    :root{
+                        --primary:#1877F2;
+                        --muted:#6c757d;
+                        --bg:#f6f8fb;
+                        --card-border:#e6e9ef;
+                        --accent:#32805c;
+                        --sidebar-bg:#0f2a40;
+                        --glass: rgba(255,255,255,0.7);
+                    }
+                    html,body{height:100%;}
+                    body{background:linear-gradient(180deg,var(--bg),#fbfdff);font-family:Inter, 'Segoe UI', Arial, sans-serif;color:#22303b;margin:0;}
                     .sidebar .menu a.active {
                         border-radius: 12px;
                         margin-bottom: 18px;
@@ -80,21 +91,21 @@
             transform: scale(0.96);
             transition: transform 0.1s;
         }
-    body { background: #f4f6fa; }
+    
     .sidebar {
-        background: #102542;
+        background: var(--sidebar-bg);
         color: #fff;
         min-height: 100vh;
-        padding: 18px 0 0 0;
-        width: 340px;
+        padding: 20px 18px;
+        width: 300px;
         position: fixed;
         left: 0;
         top: 0;
-        z-index: 10;
+        z-index: 12;
         display: flex;
         flex-direction: column;
         overflow-y: auto;
-        font-family: 'Inter', 'Roboto', Arial, sans-serif;
+        box-shadow: 0 6px 24px rgba(7,22,36,0.12);
     }
     .sidebar .menu a {
         display: flex;
@@ -216,47 +227,51 @@
         cursor: pointer;
     }
     .main-content {
-        margin-left: 270px;
-        padding: 40px 32px 32px 32px;
+        margin-left: 320px;
+        padding: 28px 36px 48px 36px;
+        transition: padding 0.2s;
+        max-width: 1200px;
+        margin-right: auto;
+    }
+    .dashboard-topbar{
+        backdrop-filter: blur(6px);
+        background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.8));
+        border-bottom: 1px solid rgba(0,0,0,0.04);
     }
     .dashboard-title {
-        color: #1877F2;
+        color: var(--primary);
         font-size: 2.2rem;
-        font-weight: bold;
+        font-weight: 700;
+        letter-spacing: -0.01em;
     }
     .dashboard-subtitle {
-        color: #6c757d;
-        font-size: 1.1rem;
-        margin-bottom: 32px;
+        color: var(--muted);
+        font-size: 1.05rem;
+        margin-bottom: 12px;
     }
-    .notification {
-        background: #fff6f2;
-        border: 2px solid #ff6f3c;
-        border-radius: 18px;
-        color: #ff6f3c;
-        padding: 24px 32px;
-        margin-bottom: 32px;
-        font-size: 1.15rem;
-    }
+    .notification { display:none; }
     .dashboard-cards {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 32px;
-        margin-bottom: 32px;
+        grid-template-columns: repeat(3, minmax(240px,1fr));
+        gap: 24px;
+        margin-bottom: 28px;
+        align-items: start;
     }
     .dashboard-card {
         flex: 1;
         background: #fff;
-        border-radius: 18px;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-        padding: 28px 24px;
+        border-radius: 14px;
+        box-shadow: 0 8px 30px rgba(18,38,63,0.06);
+        padding: 28px 22px;
         display: flex;
         flex-direction: column;
         align-items: flex-start;
         min-width: 0;
-        min-height: 170px;
-        width: 300px;
+        min-height: 150px;
+        width: 100%;
+        transition: transform 0.18s, box-shadow 0.18s;
     }
+    .dashboard-card:hover{ transform: translateY(-6px); box-shadow:0 18px 40px rgba(18,38,63,0.08);} 
     .dashboard-card.faturas { border: 2px solid #ff6f3c; background: #fff6f2; }
     .dashboard-card.despesas { border: 2px solid #42a5ff; background: #f0f6ff; }
     .dashboard-card.relatorios { border: 2px solid #1560c2; background: #f0f6ff; }
@@ -269,9 +284,15 @@
         gap: 8px;
     }
     .dashboard-card .card-value {
-        font-size: 2.5rem;
-        font-weight: bold;
+        font-size: 2.1rem;
+        font-weight: 700;
         margin-bottom: 8px;
+    }
+    @media (max-width:900px){
+        .main-content{margin-left: 0;padding:20px;}
+        .sidebar{position:relative;width:100%;height:auto;box-shadow:none}
+        .dashboard-topbar{position:relative;left:0}
+        .dashboard-cards{grid-template-columns:repeat(1,1fr)}
     }
     .dashboard-card .card-link {
         color: #32805c;

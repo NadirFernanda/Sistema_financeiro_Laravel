@@ -329,35 +329,35 @@
                     </div>
                 </div>
         <div class="dashboard-cards" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:24px;">
-            <div class="dashboard-card faturas" style="background:#f4faff;border:1.5px solid #1877F2;border-radius:16px;">
-                <div class="card-title" style="color:#1877F2;font-weight:bold;font-size:1.25rem;display:flex;align-items:center;gap:10px;">
+            <div class="dashboard-card faturas" style="background:#fff;border:1.2px solid #e6e9ef;border-radius:16px;">
+                <div class="card-title" style="color:#1877F2;font-weight:bold;font-size:1.18rem;display:flex;align-items:center;gap:10px;">
                     <span class="icon" style="display:flex;align-items:center;">
-                        <i data-feather="file-text" style="width:28px;height:28px;stroke:#42a5ff;"></i>
+                        <i data-feather="file-text" style="width:22px;height:22px;stroke:#1877F2;"></i>
                     </span>
                     Faturas
                 </div>
-                <div class="card-value" style="color:#1877F2;font-size:2.3rem;font-weight:bold;">{{ $totalFaturas }}</div>
-                <a href="{{ route('faturas') }}" class="card-link" style="color:#222;font-weight:500;font-size:1.05rem;text-decoration:none;">Mais informações &rarr;</a>
+                <div class="card-value" style="color:#1877F2;font-size:2.1rem;font-weight:700;">{{ $totalFaturas }}</div>
+                <a href="{{ route('faturas') }}" class="card-link" style="color:#32805c;font-weight:600;text-decoration:none;">Mais informações &rarr;</a>
             </div>
-            <div class="dashboard-card despesas" style="background:#f4faff;border:1.5px solid #1877F2;border-radius:16px;">
-                <div class="card-title" style="color:#1877F2;font-weight:bold;font-size:1.25rem;display:flex;align-items:center;gap:10px;">
+            <div class="dashboard-card despesas" style="background:#fff;border:1.2px solid #e6e9ef;border-radius:16px;">
+                <div class="card-title" style="color:#1877F2;font-weight:bold;font-size:1.18rem;display:flex;align-items:center;gap:10px;">
                     <span class="icon" style="display:flex;align-items:center;">
-                        <i data-feather="dollar-sign" style="width:28px;height:28px;stroke:#1877F2;"></i>
+                        <i data-feather="dollar-sign" style="width:22px;height:22px;stroke:#1877F2;"></i>
                     </span>
                     Despesas
                 </div>
-                <div class="card-value" style="color:#1877F2;font-size:2.3rem;font-weight:bold;">{{ $totalDespesas }}</div>
-                <a href="{{ route('movimentos') }}" class="card-link" style="color:#222;font-weight:500;font-size:1.05rem;text-decoration:none;">Mais informações &rarr;</a>
+                <div class="card-value" style="color:#1877F2;font-size:2.1rem;font-weight:700;">{{ $totalDespesas }}</div>
+                <a href="{{ route('movimentos') }}" class="card-link" style="color:#32805c;font-weight:600;text-decoration:none;">Mais informações &rarr;</a>
             </div>
-            <div class="dashboard-card relatorios" style="background:#f4faff;border:1.5px solid #1877F2;border-radius:16px;">
-                <div class="card-title" style="color:#1877F2;font-weight:bold;font-size:1.25rem;display:flex;align-items:center;gap:10px;">
+            <div class="dashboard-card relatorios" style="background:#fff;border:1.2px solid #e6e9ef;border-radius:16px;">
+                <div class="card-title" style="color:#1877F2;font-weight:bold;font-size:1.18rem;display:flex;align-items:center;gap:10px;">
                     <span class="icon" style="display:flex;align-items:center;">
-                        <i data-feather="bar-chart-2" style="width:28px;height:28px;stroke:#1877F2;"></i>
+                        <i data-feather="bar-chart-2" style="width:22px;height:22px;stroke:#1877F2;"></i>
                     </span>
                     Relatórios
                 </div>
-                <div class="card-value" style="color:#1877F2;font-size:2.3rem;font-weight:bold;">{{ $totalRelatorios }}</div>
-                <a href="{{ route('relatorios') }}" class="card-link" style="color:#222;font-weight:500;font-size:1.05rem;text-decoration:none;">Mais informações &rarr;</a>
+                <div class="card-value" style="color:#1877F2;font-size:2.1rem;font-weight:700;">{{ $totalRelatorios }}</div>
+                <a href="{{ route('relatorios') }}" class="card-link" style="color:#32805c;font-weight:600;text-decoration:none;">Mais informações &rarr;</a>
             </div>
         </div>
         <div class="dashboard-cards" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
